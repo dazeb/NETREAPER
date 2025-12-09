@@ -1,6 +1,6 @@
 # ☠️ NETREAPER
 
-```
+
  ███╗   ██╗███████╗████████╗██████╗ ███████╗ █████╗ ██████╗ ███████╗██████╗ 
  ████╗  ██║██╔════╝╚══██╔══╝██╔══██╗██╔════╝██╔══██╗██╔══██╗██╔════╝██╔══██╗
  ██╔██╗ ██║█████╗     ██║   ██████╔╝█████╗  ███████║██████╔╝█████╗  ██████╔╝
@@ -22,7 +22,7 @@
 
 [⚡ Quick Start](#-quick-start) • [🎯 Features](#-features) • [📡 Arsenal](#-the-arsenal) • [🔧 Usage](#-usage) • [⚠️ Legal](#%EF%B8%8F-legal-disclaimer)
 
----
+
 
 ## 💀 What is NETREAPER?
 
@@ -47,11 +47,11 @@ NETREAPER is a unified offensive security toolkit that wraps **70+ penetration t
 - 🎓 **Students** - Learn pentesting with guided menus
 - 🏢 **Professionals** - Consistent interface, professional reports
 
----
+
 
 ## ⚡ Quick Start
 
-```bash
+   bash
 # Clone the reaper
 git clone https://github.com/Nerds489/NETREAPER.git
 cd NETREAPER
@@ -61,14 +61,14 @@ sudo bash ./netreaper-install
 
 # Unleash it
 sudo netreaper
-```
+
 
 **One-liner for the impatient:**
-```bash
+   bash
 git clone https://github.com/Nerds489/NETREAPER.git && cd NETREAPER && sudo bash ./netreaper-install && sudo netreaper
-```
 
----
+
+
 
 ## 🐧 Supported Distributions
 
@@ -82,7 +82,7 @@ git clone https://github.com/Nerds489/NETREAPER.git && cd NETREAPER && sudo bash
 
 > **Note:** Some tools may require additional repositories (EPEL for RHEL-based, BlackArch for Arch). The installer will guide you through setup.
 
----
+
 
 ## 🎯 Features
 
@@ -103,7 +103,7 @@ git clone https://github.com/Nerds489/NETREAPER.git && cd NETREAPER && sudo bash
 | **Compliance-ready logging** | Log levels, audit trails, spinners, progress bars |
 | **Smarter safety** | Confirmations for dangerous ops, privilege escalation helper, target validation |
 
----
+
 
 ## 📡 Tool Categories
 
@@ -169,13 +169,13 @@ git clone https://github.com/Nerds489/NETREAPER.git && cd NETREAPER && sudo bash
 | tcpdump | Packet capture |
 | wireshark | Traffic analysis |
 
----
+
 
 ## 🎮 The Menu System
 
 NETREAPER features a clean, organized menu structure:
 
-```
+
 ┌───────────────────────────────────────────────────────────────────┐
 │                         ◤ ARSENAL ◢                               │
 ├───────────────────────────────────────────────────────────────────┤
@@ -194,28 +194,28 @@ NETREAPER features a clean, organized menu structure:
 │                        [Q] Quit                                   │
 │                                                                   │
 └───────────────────────────────────────────────────────────────────┘
-```
+
 
 Each category opens a submenu with specific tools and options.
 
----
+
 
 ## 🛠️ The Arsenal
 
 ### Installation Methods
 
 **Option 1: Essential Tools Only** (~500MB, 5 min)
-```bash
+    bash
 sudo netreaper-install essentials
-```
+
 
 **Option 2: Full Arsenal** (~3-5GB, 15-30 min)
-```bash
+   bash
 sudo netreaper-install all
-```
+
 
 **Option 3: Category Install**
-```bash
+    bash
 sudo netreaper-install scanning    # nmap, masscan, rustscan...
 sudo netreaper-install wireless    # aircrack-ng, wifite, bettercap...
 sudo netreaper-install exploit     # metasploit, sqlmap, nuclei...
@@ -223,26 +223,26 @@ sudo netreaper-install creds       # hashcat, john, hydra...
 ```
 
 **Option 4: Interactive Menu**
-```bash
+   bash
 sudo netreaper-install
-```
+
 
 **Option 5: Uninstall** *(New in v5.3.1)*
-```bash
+   bash
 sudo netreaper-install uninstall          # Interactive
 sudo netreaper-install uninstall wireless # By category
-```
+
 
 ### Check What's Installed
-```bash
+   bash
 netreaper status
-```
 
----
+
+
 
 ## 💻 Usage
 
-```bash
+   bash
 # Interactive menu (default)
 sudo netreaper
 
@@ -264,7 +264,7 @@ sudo netreaper help
 sudo netreaper --version
 ```
 
----
+
 
 ## 🗺️ Roadmap
 
@@ -278,9 +278,8 @@ sudo netreaper --version
 - [x] v5.2 - Multi-distro support (Debian, RHEL, Arch, SUSE, Alpine)
 - [x] v5.3.1 - Interface validation, monitor mode verification, uninstall, Fedora/RHEL distro fix
 - [ ] v5.5 - Profile system, favorites, aliases
-- [ ] v6.0 - Plugin architecture, custom modules
 
----
+
 
 ## ⚠️ Legal Disclaimer
 
