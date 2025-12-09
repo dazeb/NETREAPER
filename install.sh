@@ -1,76 +1,14 @@
 #!/usr/bin/env bash
-#═══════════════════════════════════════════════════════════════════════════════
-#    NETREAPER Installer
-#    Copyright (c) 2025 OFFTRACKMEDIA Studios
-#═══════════════════════════════════════════════════════════════════════════════
+# NETREAPER Installer Wrapper
+# Calls bin/netreaper-install with all arguments
 
-set -e
+set -euo pipefail
 
-# Colors
-RED='\033[0;31m'
-GREEN='\033[0;32m'
-CYAN='\033[0;36m'
-NC='\033[0m'
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 
-echo -e "${CYAN}"
-cat << 'EOF_ART'
-    ███╗   ██╗███████╗████████╗██████╗ ███████╗ █████╗ ██████╗ ███████╗██████╗
-    ████╗  ██║██╔════╝╚══██╔══╝██╔══██╗██╔════╝██╔══██╗██╔══██╗██╔════╝██╔══██╗
-    ██╔██╗ ██║█████╗     ██║   ██████╔╝█████╗  ███████║██████╔╝█████╗  ██████╔╝
-    ██║╚██╗██║██╔══╝     ██║   ██╔══██╗██╔══╝  ██╔══██║██╔═══╝ ██╔══╝  ██╔══██╗
-    ██║ ╚████║███████╗   ██║   ██║  ██║███████╗██║  ██║██║     ███████╗██║  ██║
-    ╚═╝  ╚═══╝╚══════╝   ╚═╝   ╚═╝  ╚═╝╚══════╝╚═╝  ╚═╝╚═╝     ╚══════╝╚═╝  ╚═╝
-EOF_ART
-echo -e "${NC}"
-echo -e "    ${CYAN}NETREAPER v6.2.0 Installer${NC}"
-echo
-
-# Check root
-if [[ $EUID -ne 0 ]]; then
-    echo -e "    ${RED}[!]${NC} This installer must be run as root"
-    echo -e "    ${CYAN}[*]${NC} Usage: sudo ./install.sh"
+if [[ ! -x "$SCRIPT_DIR/bin/netreaper-install" ]]; then
+    echo "ERROR: bin/netreaper-install not found or not executable"
     exit 1
 fi
 
-# Get script directory
-SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-
-# Installation paths
-PREFIX="${PREFIX:-/usr/local/bin}"
-COMPLETION_DIR="/etc/bash_completion.d"
-
-echo -e "    ${CYAN}[*]${NC} Installing to ${PREFIX}..."
-
-# Install main scripts from bin/
-install -m 755 "$SCRIPT_DIR/bin/netreaper" "$PREFIX/netreaper"
-echo -e "    ${GREEN}[✓]${NC} Installed netreaper"
-
-install -m 755 "$SCRIPT_DIR/bin/netreaper-install" "$PREFIX/netreaper-install"
-echo -e "    ${GREEN}[✓]${NC} Installed netreaper-install"
-
-# Install bash completion
-if [[ -d "$COMPLETION_DIR" ]]; then
-    install -m 644 "$SCRIPT_DIR/completions/netreaper.bash" "$COMPLETION_DIR/netreaper"
-    echo -e "    ${GREEN}[✓]${NC} Installed bash completion"
-fi
-
-# Create config directory
-mkdir -p /etc/netreaper
-mkdir -p ~/.netreaper/{logs,output,loot,sessions}
-echo -e "    ${GREEN}[✓]${NC} Created /etc/netreaper"
-
-echo
-echo -e "    ${GREEN}════════════════════════════════════════════════════════${NC}"
-echo -e "    ${GREEN}    ✓ NETREAPER v6.2.0 installed successfully!${NC}"
-echo -e "    ${GREEN}════════════════════════════════════════════════════════${NC}"
-echo
-echo -e "    ${CYAN}Quick Start:${NC}"
-echo -e "        netreaper              # Launch interactive menu"
-echo -e "        netreaper wizard scan  # Guided scan wizard"
-echo -e "        netreaper help         # Show all commands"
-echo
-echo -e "    ${CYAN}Install Tools:${NC}"
-echo -e "        sudo netreaper-install # Interactive installer"
-echo
-echo -e "    ${CYAN}© 2025 OFFTRACKMEDIA Studios${NC}"
-echo
+exec "$SCRIPT_DIR/bin/netreaper-install" "$@"

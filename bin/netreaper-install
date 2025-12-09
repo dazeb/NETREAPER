@@ -13,6 +13,8 @@ set -o pipefail
 
 readonly VERSION="6.2.0"
 readonly SCRIPT_NAME="netreaper-install"
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
+readonly SCRIPT_DIR
 
 # Colors
 readonly C_RESET='\033[0m'
