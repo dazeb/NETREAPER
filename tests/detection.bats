@@ -13,6 +13,8 @@ setup() {
     # Source core first (required by detection)
     source "$NETREAPER_ROOT/lib/core.sh"
     source "$NETREAPER_ROOT/lib/detection.sh"
+    # Clear ERR trap to prevent interference with BATS test execution
+    trap - ERR
 }
 
 #───────────────────────────────────────────────────────────────────────────────
