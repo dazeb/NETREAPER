@@ -13,7 +13,7 @@
 ## Overview
 NETREAPER is a unified offensive toolkit with 70+ tools behind one interface. Use it to scan, attack, monitor, and report without juggling individual commands.
 
-**What’s new in v5.0 (Phantom Protocol):** guided scan/WiFi wizards, first-run setup, log levels with audit trails, safer confirmations, and a refreshed status/installer experience.
+**What’s new in v6.2.1 (Phantom Protocol):** executables now live in `bin/` with repo-level wrappers, the first-run wizard honors non-interactive mode, docs live entirely under `docs/`, and Apache 2.0 is the only license (no separate EULA).
 
 ## Logging & Verbosity
 - Levels: DEBUG, INFO, WARN, ERROR, FATAL (set via `NETREAPER_LOG_LEVEL` or config).
@@ -27,6 +27,7 @@ NETREAPER is a unified offensive toolkit with 70+ tools behind one interface. Us
 
 ## Wizards
 - First run wizard handles legal notice, verbose preference, and optional essentials install.
+- Non-interactive/CI sessions (`NR_NON_INTERACTIVE=1` or no TTY) skip that wizard, auto-set `FIRST_RUN_COMPLETE`, and generate the legal acceptance file so pipelines never block.
 - Scan wizard: `netreaper wizard scan` (target selection, scan type, timing, output).
 - WiFi wizard: `netreaper wizard wifi` (interface selection, attack type, confirmation).
 
@@ -43,7 +44,7 @@ NETREAPER is a unified offensive toolkit with 70+ tools behind one interface. Us
 
 ## Install & Prep
 1. Clone: `git clone https://github.com/Nerds489/NETREAPER.git && cd NETREAPER`.
-2. Install: `sudo ./install.sh` (adds `netreaper` and `netreaper-install` to PATH).
+2. Install: `sudo ./install.sh` (calls `bin/netreaper-install` and drops `/usr/local/bin/netreaper*` wrappers; inside the repo keep using `./netreaper` and `./netreaper-install`).
 3. Verify basics: `netreaper --version` and `netreaper status`.
 4. Recommended packages (for full wireless/graphics support): `sudo apt install aircrack-ng wireshark hashcat hydra` if your distro does not provide them via the installer.
 
@@ -55,8 +56,10 @@ netreaper
 - Navigate the main menu: Recon, Wireless, Exploit, Stress, Tools, Intel, Credentials, Post-Exploit.
 - Use arrow keys/number input; `q` or `Q` exits.
 
+> Headless/CI usage: set `NR_NON_INTERACTIVE=1` (or let NETREAPER detect the missing TTY) to bypass the wizard and legal prompt automatically.
+
 ## Install the Arsenal
-Choose what to install before heavier tasks:
+Choose what to install before heavier tasks (run `./netreaper-install` from the repo or `netreaper-install` after installing system-wide):
 - Essentials (lean): `sudo netreaper-install essentials`
 - Full arsenal: `sudo netreaper-install all`
 - By category: `sudo netreaper-install recon`, `sudo netreaper-install wireless`, `sudo netreaper-install exploit`, `sudo netreaper-install creds`
@@ -109,5 +112,5 @@ netreaper session export
 ## Safety Tips
 - Run invasive modules (wireless attacks, brute force, stress) only with written authorization.
 - Review the command previews shown before execution and read the corresponding log entries when testing new options.
-- Keep tool versions updated: `sudo netreaper-install all` to refresh, or update the script via `wget .../netreaper -O netreaper && chmod +x netreaper` if prompted.
+- Keep tool versions updated: `sudo netreaper-install all` to refresh, or update the main script via `wget https://raw.githubusercontent.com/Nerds489/NETREAPER/main/bin/netreaper -O bin/netreaper && chmod +x bin/netreaper` if prompted (the repo root wrappers stay untouched).
 - Always verify interfaces: `ip link`, `rfkill list` before enabling monitor mode.

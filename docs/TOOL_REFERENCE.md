@@ -1,6 +1,6 @@
-# NETREAPER Tool Reference (v5.1.0)
+# NETREAPER Tool Reference (v6.2.1)
 
-NETREAPER wraps 70+ tools behind one interface. Use the interactive menu for guided flows. CLI shortcuts available:
+NETREAPER wraps 70+ tools behind one interface. Run it via `./netreaper` inside the repo (wrapper) or `netreaper` after installing system-wide; both call the executable under `bin/`. Use the interactive menu for guided flows. CLI shortcuts available:
 - `netreaper scan <target> (--quick|--full|--vuln|--stealth)`
 - `netreaper wifi --monitor <iface>`
 - `netreaper crack <capture> --hashcat`

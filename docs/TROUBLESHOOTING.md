@@ -8,8 +8,9 @@ Use this decision tree to get back to hacking quickly.
    - `netreaper status` (tool availability)
    - Logs live in `~/.netreaper/logs/`; sessions in `~/.netreaper/sessions/`.
 2. Verify install paths:
-   - `command -v netreaper` and `command -v netreaper-install` should return `/usr/local/bin/netreaper` (or your chosen prefix).
+   - `command -v netreaper` and `command -v netreaper-install` should return `/usr/local/bin/netreaper` (or your chosen prefix). Repo clones also ship wrappers (`./netreaper`, `./netreaper-install`) that forward to the same executables under `bin/`.
 3. Re-run status after updates: `sudo netreaper-install status` to confirm required tools are present.
+4. Automation/CI: export `NR_NON_INTERACTIVE=1` (or run without a TTY) to skip the wizard/legal prompts and avoid blocked pipelines.
 
 ## Permission or Sudo Problems
 - Menu actions that touch raw sockets, monitor mode, or packet injection need sudo. Re-run the command with `sudo` or start NETREAPER as root when testing locally.
@@ -49,7 +50,7 @@ Use this decision tree to get back to hacking quickly.
 
 ## Updating NETREAPER
 - Check for updates: `netreaper --version` (banner shows current). The tool auto-checks against the repo.
-- Manual refresh: `wget https://raw.githubusercontent.com/Nerds489/NETREAPER/main/netreaper -O netreaper && chmod +x netreaper`.
+- Manual refresh: `wget https://raw.githubusercontent.com/Nerds489/NETREAPER/main/bin/netreaper -O bin/netreaper && chmod +x bin/netreaper` (wrappers in the repo root stay untouched).
 - Re-run installer after updates if new dependencies are added: `sudo netreaper-install all`.
 
 ## Still Stuck?

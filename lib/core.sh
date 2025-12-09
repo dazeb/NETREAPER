@@ -55,7 +55,7 @@ trap '_netreaper_cleanup' EXIT
 # VERSION INFORMATION
 #═══════════════════════════════════════════════════════════════════════════════
 
-readonly VERSION="6.1.0"
+readonly VERSION="6.2.1"
 readonly CODENAME="Phantom Protocol"
 readonly SCRIPT_NAME="netreaper"
 

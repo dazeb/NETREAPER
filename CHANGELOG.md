@@ -2,6 +2,25 @@
 
 All notable changes to NETREAPER.
 
+## [6.2.1] - 2025-12-09
+
+### Added
+- Root-level wrapper binaries (`netreaper`, `netreaper-install`) that forward to the executables in `bin/`, preserving historical `./netreaper` workflows.
+- Dedicated Bash, Zsh, and Fish completion scripts in `completions/` plus documentation explaining how to enable them.
+- Smoke tests under `tests/smoke/` (`test_help.sh`, `test_version.sh`) that mirror the CI entrypoints.
+
+### Changed
+- Repository layout and quickstart docs now highlight the `bin/` directory, wrapper scripts, and the clean root-level structure.
+- `install.sh` strictly delegates to `bin/netreaper-install`, and the README/HowTo/Quick Reference call out the wrapper usage.
+- Non-interactive detection honors `NR_NON_INTERACTIVE=1` **and** TTY absence, skipping the wizard, legal prompts, and auto-marking `FIRST_RUN_COMPLETE`.
+
+### Fixed
+- CI runs without blocking prompts—no more wizard/legal interaction required for headless environments.
+- Version reporting is consistent across the CLI, installer, and core libraries (single source of truth via `VERSION`).
+
+### Removed
+- Remaining EULA language; Apache 2.0 is now the only license mentioned anywhere.
+
 ## [6.2.0] - 2024-12-09
 
 ### Added
@@ -117,6 +136,7 @@ modules/osint.sh       - OSINT gathering
 
 ---
 
+[6.2.1]: https://github.com/Nerds489/NETREAPER/compare/v6.2.0...v6.2.1
 [6.2.0]: https://github.com/Nerds489/NETREAPER/releases/tag/v6.2.0
 [6.1.0]: https://github.com/Nerds489/NETREAPER/releases/tag/v6.1.0
 [6.0.1]: https://github.com/Nerds489/NETREAPER/releases/tag/v6.0.1

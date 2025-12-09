@@ -17,9 +17,9 @@ Thank you for your interest in contributing to NETREAPER! 💀
 
 3. **Test your changes**:
 ```bash
-   bash -n netreaper
-   shellcheck netreaper
-   ./netreaper --version
+   bash -n bin/netreaper
+   shellcheck bin/netreaper
+   ./netreaper --version   # wrapper forwards to bin/netreaper
 ```
 
 4. **Sign your commits** (DCO) and ensure all checks pass

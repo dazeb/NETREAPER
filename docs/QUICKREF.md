@@ -51,6 +51,7 @@
 | `NETREAPER_LOG_LEVEL` | DEBUG/INFO/WARN/ERROR |
 | `NETREAPER_VERBOSE` | Enable verbose (true/false) |
 | `NETREAPER_NO_COLOR` | Disable colors (true/false) |
+| `NR_NON_INTERACTIVE` | Set to `1` (or rely on no TTY) to skip the wizard/legal prompts |
 
 ---
 © 2025 OFFTRACKMEDIA Studios

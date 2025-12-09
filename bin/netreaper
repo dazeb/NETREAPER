@@ -9,7 +9,7 @@
 #    ╚═╝  ╚═══╝╚══════╝   ╚═╝   ╚═╝  ╚═╝╚══════╝╚═╝  ╚═╝╚═╝     ╚══════╝╚═╝  ╚═╝
 #
 #    NETREAPER - Network Security & WiFi Assault Toolkit
-#    Version: 6.2.0 "Phantom Protocol"
+#    Version: 6.2.1 "Phantom Protocol"
 #
 #    Copyright (c) 2025 OFFTRACKMEDIA Studios
 #    Licensed under the Apache License, Version 2.0
@@ -19,7 +19,7 @@
 
 set -o pipefail
 
-readonly VERSION="6.2.0"
+readonly VERSION="6.2.1"
 readonly CODENAME="Phantom Protocol"
 readonly SCRIPT_NAME="netreaper"
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
