@@ -1,9 +1,7 @@
 # ☠️ NETREAPER
 
-Offensive security toolkit. Because 47 terminal windows is stupid.
-
 ```
- ███╗   ██╗███████╗████████╗██████╗ ███████╗ █████╗ ██████╗ ███████╗██████╗ 
+ ███╗   ██╗███████╗████████╗██████╗ ███████╗ █████╗ ██████╗ ███████╗██████╗
  ████╗  ██║██╔════╝╚══██╔══╝██╔══██╗██╔════╝██╔══██╗██╔══██╗██╔════╝██╔══██╗
  ██╔██╗ ██║█████╗     ██║   ██████╔╝█████╗  ███████║██████╔╝█████╗  ██████╔╝
  ██║╚██╗██║██╔══╝     ██║   ██╔══██╗██╔══╝  ██╔══██║██╔═══╝ ██╔══╝  ██╔══██╗
@@ -11,37 +9,17 @@ Offensive security toolkit. Because 47 terminal windows is stupid.
  ╚═╝  ╚═══╝╚══════╝   ╚═╝   ╚═╝  ╚═╝╚══════╝╚═╝  ╚═╝╚═╝     ╚══════╝╚═╝  ╚═╝
 ```
 
-**v5.3.2 — Phantom Protocol**
+**v6.0.0 — Phantom Protocol**
 
-[![Version](https://img.shields.io/github/v/release/Nerds489/NETREAPER?style=flat-square&label=version&color=ff0040)](https://github.com/Nerds489/NETREAPER/releases)
-[![License](https://img.shields.io/badge/license-Apache%202.0-00d4ff?style=flat-square)](LICENSE)
-[![Stars](https://img.shields.io/github/stars/Nerds489/NETREAPER?style=flat-square)](https://github.com/Nerds489/NETREAPER/stargazers)
-[![Forks](https://img.shields.io/github/forks/Nerds489/NETREAPER?style=flat-square)](https://github.com/Nerds489/NETREAPER/network/members)
-[![Issues](https://img.shields.io/github/issues/Nerds489/NETREAPER?style=flat-square)](https://github.com/Nerds489/NETREAPER/issues)
+[![Version](https://img.shields.io/badge/v6.0.0-ff0040?style=flat-square)](https://github.com/Nerds489/NETREAPER/releases)
+[![License](https://img.shields.io/badge/Apache_2.0-00d4ff?style=flat-square)](LICENSE)
+[![Platform](https://img.shields.io/badge/Linux-ffaa00?style=flat-square)](https://github.com/Nerds489/NETREAPER)
+[![Tools](https://img.shields.io/badge/70+_tools-8B5CF6?style=flat-square)](https://github.com/Nerds489/NETREAPER)
+[![Sponsor](https://img.shields.io/badge/Sponsor-♥-ff69b4?style=flat-square)](https://github.com/sponsors/Nerds489)
+
+---
 
 70+ security tools. One CLI. Stop juggling terminals.
-
----
-
-## The Story
-
-I got tired of running the same 15 commands across 8 terminals every time I tested a device. So I made a wrapper. Then the wrapper needed more tools. Then it needed menus. Then logging. Then multi-distro support.
-
-Now it's this.
-
-> Make the work faster. Make the work cleaner. Make the work repeatable.
-
----
-
-## Why NETREAPER?
-
-| Problem | Solution |
-|---------|----------|
-| Managing dozens of terminal windows | Single unified interface |
-| Remembering syntax for 70+ tools | Guided menus |
-| Scattered logs and output files | Centralized at `~/.netreaper/` |
-| Different commands per distro | Auto-detects package manager |
-| Time lost context-switching | Category-based navigation |
 
 ---
 
@@ -50,135 +28,118 @@ Now it's this.
 ```bash
 git clone https://github.com/Nerds489/NETREAPER.git
 cd NETREAPER
-sudo bash ./netreaper-install
+sudo ./netreaper-install
 ```
 
 **Options:**
 
 ```bash
-sudo netreaper-install essentials  # Just the basics (~500MB)
+sudo netreaper-install essentials  # Core tools (~500MB)
 sudo netreaper-install all         # Everything (~3-5GB)
-sudo netreaper-install wireless    # WiFi stuff
-sudo netreaper-install uninstall   # Remove it
+sudo netreaper-install wireless    # WiFi arsenal
+sudo netreaper-install scanning    # Port/service scanners
+sudo netreaper-install exploit     # Exploitation tools
+sudo netreaper-install creds       # Password crackers
+sudo netreaper-install osint       # Reconnaissance
+sudo netreaper-install status      # What's installed
 ```
 
 **Works on:** Kali, Parrot, Ubuntu, Debian, Fedora, RHEL, Arch, Manjaro, openSUSE, Alpine
 
 ---
 
-## What's In It
-
-**Recon** — `nmap` · `masscan` · `rustscan` · `netdiscover` · `dnsenum` · `sslscan` · `enum4linux`
-
-**Wireless** — `aircrack-ng` · `airodump-ng` · `aireplay-ng` · `wifite` · `bettercap` · `reaver` · `hcxdumptool`
-
-**Exploit** — `metasploit` · `sqlmap` · `nikto` · `gobuster` · `wpscan` · `searchsploit` · `nuclei`
-
-**Creds** — `hashcat` · `john` · `hydra` · `medusa` · `crackmapexec` · `impacket`
-
-**Traffic** — `tcpdump` · `wireshark` · `tshark` · `hping3` · `iperf3`
-
-**OSINT** — `theharvester` · `recon-ng` · `shodan` · `amass`
-
-Plus more. Check `netreaper status` for the full list.
-
----
-
 ## Usage
 
 ```bash
-sudo netreaper                      # Menu
-sudo netreaper scan 192.168.1.0/24  # Scan
-sudo netreaper wifi --monitor wlan0 # WiFi mode
-sudo netreaper status               # What's installed
-```
-
-```
-┌─────────────────────────────────────────────────────────────┐
-│                        NETREAPER                            │
-├─────────────────────────────────────────────────────────────┤
-│  [1] Recon          [2] Wireless       [3] Exploit         │
-│  [4] Stress         [5] Tools          [6] OSINT           │
-│  [7] Credentials    [8] Post-Exploit                       │
-│                                                             │
-│  [S] Sessions       [C] Config         [H] Help            │
-│                         [Q] Quit                            │
-└─────────────────────────────────────────────────────────────┘
+sudo netreaper                      # Interactive menu
+sudo netreaper scan 192.168.1.0/24  # Scan subnet
+sudo netreaper wifi --monitor wlan0 # Monitor mode
+sudo netreaper wizard scan          # Guided wizard
+sudo netreaper status               # Tool status
 ```
 
 ---
 
-## What It Actually Does
+## What's In It
 
-- **Wraps tools** — You still need to know what you're doing
+| Category | Tools |
+|----------|-------|
+| **Recon** | nmap, masscan, rustscan, netdiscover, dnsenum, sslscan |
+| **Wireless** | aircrack-ng, wifite, bettercap, reaver, hcxdumptool |
+| **Exploit** | metasploit, sqlmap, nikto, gobuster, nuclei, wpscan |
+| **Creds** | hashcat, john, hydra, medusa, crackmapexec |
+| **Traffic** | tcpdump, wireshark, hping3, iperf3 |
+| **OSINT** | theharvester, recon-ng, shodan, amass |
+
+Plus 40+ more. Run `netreaper status` for the full list.
+
+---
+
+## v6.0 Architecture
+
+```
+NETREAPER/
+├── netreaper              # Main dispatcher
+├── netreaper-install      # Arsenal installer
+├── lib/                   # Core libraries
+│   ├── core.sh            # Logging, colors, paths
+│   ├── ui.sh              # Menus and prompts
+│   ├── safety.sh          # Authorization & validation
+│   ├── detection.sh       # System detection
+│   └── utils.sh           # Helpers
+├── modules/               # Feature modules
+│   ├── recon.sh
+│   ├── wireless.sh
+│   ├── scanning.sh
+│   ├── exploit.sh
+│   ├── credentials.sh
+│   ├── traffic.sh
+│   └── osint.sh
+└── tests/                 # Bats test suite
+```
+
+---
+
+## What It Does
+
+- **Wraps tools** — Unified interface, consistent output
 - **Organizes output** — Everything goes to `~/.netreaper/`
-- **Validates interfaces** — Won't run WiFi attacks on ethernet
-- **Logs everything** — Timestamped, for when you need to prove what happened
-- **Works across distros** — Detects your package manager, installs the right stuff
-
----
+- **Validates targets** — Blocks dangerous operations by default
+- **Logs everything** — Timestamped audit trail
+- **Works everywhere** — Detects distro, uses correct package manager
 
 ## What It Doesn't Do
 
 - Replace knowing the underlying tools
-- Make you a hacker
 - Give you permission to test things you don't own
+- Make unauthorized access legal
 
 ---
 
-## File Structure
+## Legal
 
-```
-~/.netreaper/
-├── config/      # Settings
-├── logs/        # Operation logs
-├── output/      # Scan results
-├── sessions/    # Saved states
-└── captures/    # Captured data
-```
+**Authorized testing only.**
+
+You need written permission. You're responsible for your actions. Unauthorized access is a crime.
+
+See [LICENSE](LICENSE) and [NOTICE](NOTICE) for full terms.
 
 ---
 
-## Authorization
+## Support
 
-**Before you run anything:**
+If NETREAPER saves you time, consider sponsoring:
 
-- [ ] Written permission from the owner
-- [ ] Scope defined and documented
-- [ ] Legal compliance confirmed
-- [ ] Audit logging enabled
-
-Unauthorized access is a crime. You're responsible for your actions.
+[![Sponsor Nerds489](https://img.shields.io/badge/Sponsor_on_GitHub-♥-ff69b4?style=for-the-badge&logo=github-sponsors)](https://github.com/sponsors/Nerds489)
 
 ---
 
-## Docs
+## Links
 
-| Document | What It Is |
-|----------|------------|
-| [QUICKREF.md](QUICKREF.md) | Commands |
-| [TOOL_REFERENCE.md](TOOL_REFERENCE.md) | Tool details |
-| [TROUBLESHOOTING.md](TROUBLESHOOTING.md) | Fixes |
-| [HOWTO.md](HOWTO.md) | Guides |
-| [CONTRIBUTING.md](CONTRIBUTING.md) | How to help |
-| [CHANGELOG.md](CHANGELOG.md) | What changed |
+- [Releases](https://github.com/Nerds489/NETREAPER/releases)
+- [Issues](https://github.com/Nerds489/NETREAPER/issues)
+- [Discussions](https://github.com/Nerds489/NETREAPER/discussions)
 
 ---
 
-## Roadmap
-
-| Version | Status | What |
-|---------|--------|------|
-| 5.3 | ✅ | Interface validation, installer fixes |
-| 5.5 | 🔄 | Profiles, favorites |
-| 6.0 | 📋 | Modular architecture, plugins |
-
----
-
-## License
-
-Apache 2.0 — © 2025 OFFTRACKMEDIA Studios (ABN: 84 290 819 896)
-
----
-
-[Report Bug](https://github.com/Nerds489/NETREAPER/issues) · [Request Feature](https://github.com/Nerds489/NETREAPER/issues) · [Discussions](https://github.com/Nerds489/NETREAPER/discussions)
+**© 2025 OFFTRACKMEDIA Studios** — Apache 2.0

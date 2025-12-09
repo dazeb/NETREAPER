@@ -1,0 +1,92 @@
+NETREAPER
+Offensive-Security Framework
+https://github.com/Nerds489/NETREAPER
+
+Copyright (c) 2025 OFFTRACKMEDIA Studios (ABN: 84 290 819 896)
+
+================================================================================
+LICENSE
+================================================================================
+
+This product is licensed under the Apache License, Version 2.0.
+You may not use this file except in compliance with the License.
+A copy of the License is available in the LICENSE file in this repository or at:
+
+    https://www.apache.org/licenses/LICENSE-2.0
+
+================================================================================
+THIRD-PARTY SOFTWARE
+================================================================================
+
+NETREAPER is a wrapper/framework that invokes, integrates with, or provides
+interfaces to various third-party security tools. These tools are NOT bundled
+with NETREAPER and must be installed separately. Each tool is the property of
+its respective owner(s) and is governed by its own license.
+
+Tools that may be invoked by NETREAPER include, but are not limited to:
+
+  Tool                License              Project URL
+  ------------------- -------------------- ----------------------------------------
+  nmap                NPSL                 https://nmap.org/
+  masscan             AGPL-3.0             https://github.com/robertdavidgraham/masscan
+  aircrack-ng         GPL-2.0              https://www.aircrack-ng.org/
+  metasploit          BSD-3-Clause         https://www.metasploit.com/
+  sqlmap              GPL-2.0              https://sqlmap.org/
+  hashcat             MIT                  https://hashcat.net/
+  john                GPL-2.0              https://www.openwall.com/john/
+  hydra               AGPL-3.0             https://github.com/vanhauser-thc/thc-hydra
+  wireshark           GPL-2.0              https://www.wireshark.org/
+  bettercap           GPL-3.0              https://www.bettercap.org/
+  nikto               GPL                  https://cirt.net/Nikto2
+  gobuster            Apache-2.0           https://github.com/OJ/gobuster
+  nuclei              MIT                  https://github.com/projectdiscovery/nuclei
+  wifite              GPL-2.0              https://github.com/derv82/wifite2
+  reaver              GPL-2.0              https://github.com/t6x/reaver-wps-fork-t6x
+  theharvester        GPL-2.0              https://github.com/laramies/theHarvester
+  recon-ng            GPL-3.0              https://github.com/lanmaster53/recon-ng
+  crackmapexec        BSD-2-Clause         https://github.com/byt3bl33d3r/CrackMapExec
+
+This list is not exhaustive. Users are responsible for reviewing and complying
+with the licenses of any tools they install and use through NETREAPER.
+
+================================================================================
+DISCLAIMER
+================================================================================
+
+NETREAPER is intended ONLY for authorized security testing and assessment.
+
+Nothing in this notice, the LICENSE, or any documentation grants permission
+to access, test, attack, or otherwise interact with systems, networks, or
+devices without explicit written authorization from the owner.
+
+Unauthorized access to computer systems is a criminal offense under laws
+including but not limited to:
+
+  - Computer Fraud and Abuse Act (CFAA) - United States
+  - Computer Misuse Act - United Kingdom
+  - Criminal Code Act - Australia
+  - Similar laws in other jurisdictions
+
+Users assume FULL LEGAL RESPONSIBILITY for their actions when using this
+software. The authors and copyright holders accept NO LIABILITY for misuse.
+
+================================================================================
+WARRANTY DISCLAIMER
+================================================================================
+
+OFFTRACKMEDIA Studios provides this software on an "AS IS" basis, WITHOUT
+WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied, including
+but not limited to warranties of MERCHANTABILITY, FITNESS FOR A PARTICULAR
+PURPOSE, or NON-INFRINGEMENT.
+
+See the Apache License, Version 2.0 for full warranty and liability terms.
+
+================================================================================
+CONTACT
+================================================================================
+
+OFFTRACKMEDIA Studios
+ABN: 84 290 819 896
+
+Project:  https://github.com/Nerds489/NETREAPER
+Issues:   https://github.com/Nerds489/NETREAPER/issues

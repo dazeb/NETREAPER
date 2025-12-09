@@ -19,7 +19,7 @@
 
 set -o pipefail
 
-readonly VERSION="5.3.1"
+readonly VERSION="6.0.0"
 readonly CODENAME="Phantom Protocol"
 readonly SCRIPT_NAME="netreaper"
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
