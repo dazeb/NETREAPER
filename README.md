@@ -1,4 +1,6 @@
-# NETREAPER
+# ☠️ NETREAPER. Offensive security toolkit. Because 47 terminal windows is stupid.
+
+
 
 ```
  ███╗   ██╗███████╗████████╗██████╗ ███████╗ █████╗ ██████╗ ███████╗██████╗ 
@@ -9,279 +11,123 @@
  ╚═╝  ╚═══╝╚══════╝   ╚═╝   ╚═╝  ╚═╝╚══════╝╚═╝  ╚═╝╚═╝     ╚══════╝╚═╝  ╚═╝
 ```
 
-<p align="center">
-  <strong>Network Security & WiFi Assessment Framework</strong><br>
-  <em>70+ tools. One unified CLI. Built for professionals.</em>
-</p>
+**v5.3.2 — Phantom Protocol**
 
-<p align="center">
-  <a href="https://github.com/Nerds489/NETREAPER/releases"><img src="https://img.shields.io/github/v/release/Nerds489/NETREAPER?style=flat-square&label=Version&color=blue" alt="Version"></a>
-  <a href="https://github.com/Nerds489/NETREAPER/blob/main/LICENSE"><img src="https://img.shields.io/badge/License-Apache%202.0-green?style=flat-square" alt="License"></a>
-  <a href="https://github.com/Nerds489/NETREAPER/stargazers"><img src="https://img.shields.io/github/stars/Nerds489/NETREAPER?style=flat-square" alt="Stars"></a>
-  <a href="https://github.com/Nerds489/NETREAPER/network/members"><img src="https://img.shields.io/github/forks/Nerds489/NETREAPER?style=flat-square" alt="Forks"></a>
-  <a href="https://github.com/Nerds489/NETREAPER/graphs/contributors"><img src="https://img.shields.io/github/contributors/Nerds489/NETREAPER?style=flat-square" alt="Contributors"></a>
-  <a href="https://github.com/Nerds489/NETREAPER/issues"><img src="https://img.shields.io/github/issues/Nerds489/NETREAPER?style=flat-square" alt="Issues"></a>
-</p>
-
-<p align="center">
-  <a href="#installation">Installation</a> •
-  <a href="#features">Features</a> •
-  <a href="#usage">Usage</a> •
-  <a href="#documentation">Docs</a> •
-  <a href="#authorization-requirements">Authorization</a>
-</p>
+![Version](https://img.shields.io/badge/v5.3.2-ff0040?style=flat-square)
+![License](https://img.shields.io/badge/Apache_2.0-00d4ff?style=flat-square)
+![Platform](https://img.shields.io/badge/Linux-ffaa00?style=flat-square)
+![Tools](https://img.shields.io/badge/70+_tools-8B5CF6?style=flat-square)
 
 ---
 
-## Overview
-
-NETREAPER is an offensive-security framework that consolidates reconnaissance, wireless assessment, scanning, exploitation, credential testing, and post-exploitation utilities into a single, structured CLI.
-
-Built from necessity. Maintained with purpose.
-
-### Why NETREAPER?
-
-| Challenge | Solution |
-|-----------|----------|
-| Managing dozens of terminal windows | Single unified interface |
-| Remembering syntax for 70+ tools | Guided menus and wizards |
-| Scattered logs and output files | Centralized at `~/.netreaper/` |
-| Inconsistent workflows across distros | Multi-distribution support |
-| Time lost context-switching | Streamlined category-based navigation |
+70+ security tools. One CLI. Stop juggling terminals.
 
 ---
 
-## Features
+## The Story
 
-- **70+ integrated security tools** — Reconnaissance, wireless, exploitation, credentials, and more
-- **Multi-distribution support** — Debian, RHEL, Arch, SUSE, Alpine
-- **Centralized workspace** — Configs, logs, sessions, and findings in one location
-- **Modular installation** — Install everything or only what you need
-- **Interface validation** — Automatic wireless interface detection and verification
-- **Monitor mode management** — Built-in mode switching with state verification
-- **Session management** — Save and resume assessment states
-- **Compliance-ready logging** — Timestamped audit trails for all operations
+I got tired of running the same 15 commands across 8 terminals every time I tested a device. So I made a wrapper. Then the wrapper needed more tools. Then it needed menus. Then logging. Then multi-distro support.
+
+Now it's this.
+
+> Make the work faster. Make the work cleaner. Make the work repeatable.
 
 ---
 
-## Installation
+## Install
 
 ```bash
 git clone https://github.com/Nerds489/NETREAPER.git
 cd NETREAPER
 sudo bash ./netreaper-install
-netreaper
 ```
 
-### Installation Options
+**Options:**
 
 ```bash
-# Core tools only (~500MB, ~5 min)
-sudo netreaper-install essentials
-
-# Full framework (~3-5GB, ~15-30 min)
-sudo netreaper-install all
-
-# Category-specific installation
-sudo netreaper-install wireless    # WiFi assessment tools
-sudo netreaper-install scanning    # Reconnaissance tools
-sudo netreaper-install exploit     # Exploitation tools
-sudo netreaper-install creds       # Credential testing tools
-
-# Remove installed tools
-sudo netreaper-install uninstall
+sudo netreaper-install essentials  # Just the basics (~500MB)
+sudo netreaper-install all         # Everything (~3-5GB)
+sudo netreaper-install wireless    # WiFi stuff
+sudo netreaper-install uninstall   # Remove it
 ```
 
-### Supported Distributions
+**Works on:** Kali, Parrot, Ubuntu, Debian, Fedora, RHEL, Arch, Manjaro, openSUSE, Alpine
 
-| Family | Distributions | Package Manager |
-|--------|---------------|-----------------|
-| Debian | Kali, Parrot, Ubuntu, Debian, Mint, Pop!_OS | apt |
-| Red Hat | Fedora, RHEL, Rocky, Alma, CentOS | dnf/yum |
-| Arch | Arch, Manjaro, BlackArch, EndeavourOS | pacman |
-| SUSE | openSUSE Tumbleweed/Leap, SLES | zypper |
-| Alpine | Alpine Linux | apk |
+---
+
+## What's In It
+
+| Category | Tools |
+|----------|-------|
+| **Recon** | nmap, masscan, rustscan, netdiscover, dnsenum, sslscan |
+| **Wireless** | aircrack-ng, wifite, bettercap, reaver, hcxdumptool |
+| **Exploit** | metasploit, sqlmap, nikto, gobuster, nuclei, wpscan |
+| **Creds** | hashcat, john, hydra, medusa, crackmapexec |
+| **Traffic** | tcpdump, wireshark, hping3, iperf3 |
+| **OSINT** | theharvester, recon-ng, shodan, amass |
+
+Plus 40 more. Check `netreaper status` for the full list.
 
 ---
 
 ## Usage
 
-### Interactive Mode
-
 ```bash
-netreaper
-```
-
-```
-┌─────────────────────────────────────────────────────────────┐
-│                        NETREAPER                            │
-├─────────────────────────────────────────────────────────────┤
-│  [1] Recon          [2] Wireless       [3] Exploit         │
-│  [4] Stress         [5] Tools          [6] OSINT           │
-│  [7] Credentials    [8] Post-Exploit                       │
-│                                                             │
-│  [S] Sessions       [C] Config         [H] Help            │
-│                         [Q] Quit                            │
-└─────────────────────────────────────────────────────────────┘
-```
-
-### Direct Commands
-
-```bash
-# Quick scan
-netreaper scan 192.168.1.0/24 --quick
-
-# Full vulnerability assessment
-netreaper scan 10.0.0.1 --full --vuln
-
-# Wireless interface setup
-netreaper wifi --monitor wlan0
-
-# Session management
-netreaper session start
-netreaper session list
-netreaper session resume <id>
-
-# Tool status
-netreaper status
-netreaper --version
-netreaper --help
+sudo netreaper                      # Menu
+sudo netreaper scan 192.168.1.0/24  # Scan
+sudo netreaper wifi --monitor wlan0 # WiFi mode
+sudo netreaper status               # What's installed
 ```
 
 ---
 
-## Tool Categories
+## What It Actually Does
 
-### Reconnaissance
-Subdomain enumeration, OSINT gathering, host discovery, service fingerprinting
-
-`nmap` · `masscan` · `rustscan` · `netdiscover` · `dnsenum` · `sslscan` · `enum4linux`
-
-### Wireless Assessment
-Monitor mode management, handshake capture, WPS testing, traffic analysis
-
-`aircrack-ng` · `airodump-ng` · `aireplay-ng` · `wifite` · `bettercap` · `reaver` · `hostapd`
-
-### Exploitation
-Web application testing, SQL injection, vulnerability scanning, payload delivery
-
-`metasploit` · `sqlmap` · `nikto` · `gobuster` · `wpscan` · `searchsploit` · `nuclei`
-
-### Credential Testing
-Hash analysis, dictionary attacks, protocol brute-forcing, credential validation
-
-`hashcat` · `john` · `hydra` · `medusa` · `crackmapexec` · `impacket`
-
-### Traffic Analysis
-Packet capture, protocol analysis, network monitoring
-
-`tcpdump` · `wireshark` · `tshark`
-
-### OSINT
-Email harvesting, attack surface mapping, intelligence frameworks
-
-`theharvester` · `recon-ng` · `shodan`
+- **Wraps tools** — You still need to know what you're doing
+- **Organizes output** — Everything goes to `~/.netreaper/`
+- **Validates interfaces** — Won't run WiFi attacks on ethernet
+- **Logs everything** — Timestamped, for when you need to prove what happened
+- **Works across distros** — Detects your package manager, installs the right stuff
 
 ---
 
-## File Structure
+## What It Doesn't Do
 
-```
-~/.netreaper/
-├── config/      # User configuration files
-├── logs/        # Timestamped operation logs
-├── output/      # Scan results and exports
-├── sessions/    # Saved assessment states
-└── captures/    # Captured data and findings
-```
+- Replace knowing the underlying tools
+- Make you a hacker
+- Give you permission to test things you don't own
 
 ---
 
-## Documentation
+## Legal
 
-| Document | Purpose |
-|----------|---------|
-| [QUICKREF.md](QUICKREF.md) | Command cheat sheet |
-| [TOOL_REFERENCE.md](TOOL_REFERENCE.md) | Per-tool documentation |
-| [HOWTO.md](HOWTO.md) | Detailed usage guides |
-| [TROUBLESHOOTING.md](TROUBLESHOOTING.md) | Common issues and fixes |
-| [CONTRIBUTING.md](CONTRIBUTING.md) | Contribution guidelines |
-| [SECURITY.md](SECURITY.md) | Vulnerability reporting |
-| [CHANGELOG.md](CHANGELOG.md) | Version history |
+**Authorized testing only.**
+
+You need written permission. You're responsible for your actions. Unauthorized access is a crime.
 
 ---
 
-## Authorization Requirements
+## Docs
 
-> **NETREAPER is designed exclusively for authorized security assessments.**
-
-### Before Use
-
-- [ ] Obtain **written authorization** from the system/network owner
-- [ ] Define **scope boundaries** clearly in documentation
-- [ ] Ensure **legal compliance** with local, state, and federal laws
-- [ ] Maintain **audit logs** for all assessment activities
-- [ ] Follow your organization's **rules of engagement**
-
-### Compliance Notes
-
-- All operations are logged to `~/.netreaper/logs/` with timestamps
-- Session management provides assessment state documentation
-- Output files are organized for report generation
-
-**Unauthorized access to computer systems is a criminal offense.**  
-Users assume full responsibility for ensuring proper authorization exists before conducting any assessment.
+- [QUICKREF.md](QUICKREF.md) — Commands
+- [TOOL_REFERENCE.md](TOOL_REFERENCE.md) — Tool details
+- [TROUBLESHOOTING.md](TROUBLESHOOTING.md) — Fixes
+- [CONTRIBUTING.md](CONTRIBUTING.md) — Help out
 
 ---
 
 ## Roadmap
 
-| Version | Status | Focus |
-|---------|--------|-------|
-| 5.0 | ✅ Complete | UX overhaul, logging system, guided wizards |
-| 5.1 | ✅ Complete | Bug fixes, input sanitization |
-| 5.2 | ✅ Complete | Multi-distribution support |
-| 5.3 | ✅ Complete | Interface validation, installer improvements |
-| 5.5 | 🔄 In Progress | User profiles, favorites, alias support |
-| 6.0 | 📋 Planned | Plugin architecture, custom module support |
-
----
-
-## Contributing
-
-Contributions are welcome. Please review [CONTRIBUTING.md](CONTRIBUTING.md) before submitting.
-
-**Guidelines:**
-- Keep code modular and readable
-- Document new features and commands
-- Maintain consistency with existing patterns
-- Open an issue before major feature additions
-- Include relevant test cases where applicable
-
----
-
-## Support
-
-- **Issues:** [GitHub Issues](https://github.com/Nerds489/NETREAPER/issues)
-- **Discussions:** [GitHub Discussions](https://github.com/Nerds489/NETREAPER/discussions)
-- **Logs:** `~/.netreaper/logs/`
-- **Help:** `netreaper --help`
+- [x] 5.3 — Interface validation, installer fixes
+- [ ] 5.5 — Profiles, favorites
+- [ ] 6.0 — Modular architecture, plugins
 
 ---
 
 ## License
 
-Licensed under the **Apache License 2.0** — see [LICENSE](LICENSE) for details.
-
-**© 2025 OFFTRACKMEDIA Studios**  
-ABN: 84 290 819 896
-
-Third-party attributions: [NOTICE](NOTICE.txt)
+Apache 2.0 — © 2025 OFFTRACKMEDIA Studios
 
 ---
 
-<p align="center">
-  <a href="https://github.com/Nerds489/NETREAPER/issues/new?template=bug_report.md">Report Bug</a> •
-  <a href="https://github.com/Nerds489/NETREAPER/issues/new?template=feature_request.md">Request Feature</a> •
-  <a href="https://github.com/Nerds489/NETREAPER/discussions">Discussions</a>
-</p>
+**[Issues](https://github.com/Nerds489/NETREAPER/issues)** · **[Discussions](https://github.com/Nerds489/NETREAPER/discussions)**
