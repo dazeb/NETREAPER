@@ -2407,6 +2407,14 @@ show_legal() {
 }
 
 check_legal() {
+    if is_non_interactive; then
+        mkdir -p "$(dirname "$LEGAL_FILE")"
+        if [[ ! -f "$LEGAL_FILE" ]]; then
+            echo "$(date -Iseconds) | $(whoami)@$(hostname) | Auto-accepted (non-interactive)" > "$LEGAL_FILE"
+        fi
+        return 0
+    fi
+
     [[ -f "$LEGAL_FILE" ]] && return 0
     
     clear
@@ -2427,6 +2435,12 @@ check_legal() {
 }
 
 first_run_wizard() {
+    if is_non_interactive; then
+        check_legal
+        config_set FIRST_RUN_COMPLETE true
+        return 0
+    fi
+
     clear
     echo
     echo -e "    ${C_FIRE}╔═══════════════════════════════════════════════════════════════════════╗${C_RESET}"
@@ -2492,6 +2506,10 @@ first_run_wizard() {
 
 is_root() {
     [[ $EUID -eq 0 ]]
+}
+
+is_non_interactive() {
+    [[ ${NR_NON_INTERACTIVE:-0} -eq 1 || ! -t 0 ]]
 }
 
 run_with_sudo() {
