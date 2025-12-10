@@ -8,13 +8,16 @@
   
 ```
 
-**v6.2.2 — Phantom Protocol**
+**v6.2.4 — Phantom Protocol**
 
-70+ security tools. One CLI. Stop juggling terminals. v6.2.2 brings bugfixes on top of the bin/ restructure, CI-safe non-interactive mode, Apache 2.0-only licensing, and official shell completions.
+70+ security tools. One CLI. Stop juggling terminals. v6.2.4 adds a centralized logging system with log levels, smart privilege handling, and audit trails for security operations.
 
-## v6.2.2 Changes
+## v6.2.4 Changes
 
-* **Bugfix:** Resolved E2BIG "argument list too long" error when invoking sudo with large argument expansion ([#8](https://github.com/Nerds489/NETREAPER/pull/8))
+* **Logging System:** Centralized logging with levels (DEBUG–FATAL), daily log rotation, and file logging under `~/.netreaper/logs/`
+* **Privilege Handling:** Smart sudo helpers (`is_root`, `require_root`, `run_with_sudo`, `elevate_if_needed`) with clear error messages
+* **Audit Trail:** Security-relevant operations now logged to `audit_YYYYMMDD.log`
+* **Thin Dispatcher:** `bin/netreaper` refactored to source modular libs and route commands
 
 ## v6.2.x Highlights
 
@@ -103,6 +106,27 @@ sudo netreaper --dry-run wifi monitor wlan0
 
 All commands print with `[DRY-RUN]` prefix instead of executing. Safe to test.
 
+## Log Levels
+
+Control verbosity with `NETREAPER_LOG_LEVEL`:
+
+```bash
+NETREAPER_LOG_LEVEL=0 netreaper status   # DEBUG: show everything
+NETREAPER_LOG_LEVEL=1 netreaper status   # INFO: default
+NETREAPER_LOG_LEVEL=4 netreaper status   # ERROR: errors only
+```
+
+| Level | Value | Shows |
+|-------|-------|-------|
+| DEBUG | 0 | Everything including debug messages |
+| INFO | 1 | Normal operation messages (default) |
+| SUCCESS | 2 | Success messages and above |
+| WARNING | 3 | Warnings and errors |
+| ERROR | 4 | Errors only |
+| FATAL | 5 | Fatal errors only |
+
+Logs are written to `~/.netreaper/logs/netreaper_YYYYMMDD.log` by default. Disable file logging with `NETREAPER_FILE_LOGGING=0`.
+
 ## Shell Completions
 
 NETREAPER ships shell completions in `completions/`—copy them into your shell's completion path and reload.
@@ -177,7 +201,8 @@ NETREAPER/
 │   ├── netreaper              # Main CLI
 │   └── netreaper-install      # Arsenal installer
 ├── lib/
-│   ├── core.sh                # Logging, colors, paths
+│   ├── version.sh             # Version & NETREAPER_ROOT (single source of truth)
+│   ├── core.sh                # Logging, colors, paths, privilege handling
 │   ├── ui.sh                  # Menus and prompts
 │   ├── safety.sh              # Authorization & validation
 │   ├── detection.sh           # Distro detection
@@ -204,7 +229,9 @@ NETREAPER/
 * Wraps dozens of tools with unified logging/output.
 * Organizes everything under `~/.netreaper/` per session.
 * Validates targets and blocks obviously dangerous operations by default.
-* Logs each command in timestamped audit trails.
+* Logs each command in timestamped audit trails (`~/.netreaper/logs/audit_*.log`).
+* Centralized logging system with configurable log levels (DEBUG–FATAL).
+* Smart privilege handling with clear error messages when root is required.
 * Detects your distro and runs the appropriate package manager.
 
 ## What It Doesn't Do

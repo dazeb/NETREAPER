@@ -2,6 +2,23 @@
 
 All notable changes to NETREAPER.
 
+## [6.2.4] - 2025-12-10
+
+### Added
+- Centralized logging system with log levels (DEBUG–FATAL) and file logging.
+- Smart sudo and privilege helpers (is_root, require_root, run_with_sudo, elevate_if_needed).
+- Audit trail logging for security-relevant operations.
+- Log utilities: set_log_level(), show_logs(), rotate_logs().
+
+### Changed
+- bin/netreaper refactored into a thin dispatcher using modular libs and modules.
+- All scripts now read version and NETREAPER_ROOT from lib/version.sh.
+
+### Fixed
+- Inconsistent privilege handling and unclear root requirements for WiFi/scan/etc.
+- Lack of audit trail for security-relevant operations.
+- ORIGINAL_ARGS unbound variable error with set -u.
+
 ## [6.2.2] - 2025-12-10
 
 ### Fixed
@@ -141,6 +158,7 @@ modules/osint.sh       - OSINT gathering
 
 ---
 
+[6.2.4]: https://github.com/Nerds489/NETREAPER/compare/v6.2.3...v6.2.4
 [6.2.2]: https://github.com/Nerds489/NETREAPER/compare/v6.2.1...v6.2.2
 [6.2.1]: https://github.com/Nerds489/NETREAPER/compare/v6.2.0...v6.2.1
 [6.2.0]: https://github.com/Nerds489/NETREAPER/releases/tag/v6.2.0
