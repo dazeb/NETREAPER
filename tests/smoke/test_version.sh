@@ -1,15 +1,17 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-ROOT=$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)
+ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)"
 
-echo "Testing --version..."
-version=$("$ROOT/netreaper" --version 2>&1)
-echo "Got: $version"
+version_output=$("$ROOT/netreaper" --version 2>&1)
+version_file="$(head -n1 "$ROOT/VERSION" | tr -d '[:space:]')"
 
-if [[ "$version" == *"6.2.2"* ]]; then
-    echo "PASS: version matches v6.2.2"
+echo "Got: $version_output"
+
+if [[ "$version_output" == *"$version_file"* ]]; then
+    echo "PASS: version matches VERSION file ($version_file)"
+    exit 0
 else
-    echo "FAIL: expected to find 6.2.2 in version output"
+    echo "FAIL: expected to find $version_file in version output"
     exit 1
 fi

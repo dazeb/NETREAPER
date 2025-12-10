@@ -55,16 +55,10 @@ trap '_netreaper_cleanup' EXIT
 # VERSION INFORMATION
 #═══════════════════════════════════════════════════════════════════════════════
 
-# Read version from VERSION file to prevent drift
-NETREAPER_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
-
-if [[ -f "$NETREAPER_ROOT/VERSION" ]]; then
-    VERSION="$(head -n1 "$NETREAPER_ROOT/VERSION" | tr -d '[:space:]')"
-else
-    VERSION="unknown"
-fi
-
-readonly VERSION
+# Source shared version helper to prevent drift between CLI output,
+# VERSION file, documentation, and release workflow.
+# shellcheck source=version.sh
+source "$(dirname "${BASH_SOURCE[0]}")/version.sh"
 readonly CODENAME="Phantom Protocol"
 readonly SCRIPT_NAME="netreaper"
 
@@ -321,7 +315,7 @@ export -f _netreaper_error_handler _netreaper_cleanup
 
 # Export variables
 export VERSION CODENAME SCRIPT_NAME
-export NETREAPER_HOME CONFIG_DIR CONFIG_FILE LOG_DIR OUTPUT_DIR LOOT_DIR SESSION_DIR
+export NETREAPER_ROOT NETREAPER_HOME CONFIG_DIR CONFIG_FILE LOG_DIR OUTPUT_DIR LOOT_DIR SESSION_DIR
 export LOG_FILE AUDIT_LOG HISTORY_FILE
 export BASE_LOG_DIR BASE_OUTPUT_DIR BASE_LOOT_DIR SESSIONS_DIR SESSION_FILE
 export LEGAL_FILE FAVORITES_FILE ALIASES_FILE PROFILES_DIR TMP_DIR
