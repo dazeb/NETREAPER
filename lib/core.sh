@@ -55,7 +55,16 @@ trap '_netreaper_cleanup' EXIT
 # VERSION INFORMATION
 #═══════════════════════════════════════════════════════════════════════════════
 
-readonly VERSION="6.2.2"
+# Read version from VERSION file to prevent drift
+NETREAPER_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
+
+if [[ -f "$NETREAPER_ROOT/VERSION" ]]; then
+    VERSION="$(head -n1 "$NETREAPER_ROOT/VERSION" | tr -d '[:space:]')"
+else
+    VERSION="unknown"
+fi
+
+readonly VERSION
 readonly CODENAME="Phantom Protocol"
 readonly SCRIPT_NAME="netreaper"
 
