@@ -68,16 +68,21 @@ Usage: netreaper [command] [options]
 Options:
   -h, --help      Show this help message
   -V, --version   Show version information
+  --dry-run       Preview commands without executing
 
 Commands:
   status          Show tool installation status
-  scan <target>   Run a quick port scan (placeholder)
-  wifi            WiFi operations (placeholder)
+  scan <target>   Run a quick port scan
+  wifi            WiFi operations
+  config path     Show config directory path
+  help            Show this help message
 
 Examples:
   netreaper --version
   netreaper status
   netreaper scan 192.168.1.1
+  netreaper --dry-run scan 192.168.1.1
+  netreaper config path
 
 Run without arguments to launch the interactive menu.
 EOF
@@ -117,6 +122,32 @@ main() {
             ;;
         -h|--help)
             _show_help
+            exit 0
+            ;;
+        --dry-run)
+            NR_DRY_RUN=1
+            export NR_DRY_RUN
+            log_info "Dry-run mode enabled"
+            shift
+            if [[ -n "${1:-}" ]]; then
+                main "$@"
+            fi
+            exit 0
+            ;;
+        help)
+            _show_help
+            exit 0
+            ;;
+        config)
+            case "${2:-}" in
+                path)
+                    echo "$CONFIG_DIR"
+                    ;;
+                *)
+                    log_error "Unknown config subcommand: ${2:-}"
+                    echo "Usage: netreaper config path"
+                    ;;
+            esac
             exit 0
             ;;
         status)
