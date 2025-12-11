@@ -2,7 +2,7 @@
 # ═══════════════════════════════════════════════════════════════════════════════
 # NETREAPER - Offensive Security Framework
 # ═══════════════════════════════════════════════════════════════════════════════
-# Copyright (c) 2025 OFFTRACKMEDIA Studios (ABN: 84 290 819 896)
+# Copyright (c) 2025 Nerds489
 # SPDX-License-Identifier: Apache-2.0
 #
 # Licensed under the Apache License, Version 2.0 (the "License");

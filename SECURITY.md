@@ -11,7 +11,7 @@ authorization to test.
 If you discover a security vulnerability in NETREAPER itself (not in the 
 third-party tools it wraps), please report it responsibly.
 
-**Email:** security@offtrackmediaofficial.com
+**Email:** Open a [Security Advisory](https://github.com/Nerds489/NETREAPER/security/advisories/new)
 
 ### Please Include:
 - Affected files/versions
@@ -42,4 +42,4 @@ When using NETREAPER:
 
 ---
 
-© 2025 OFFTRACKMEDIA Studios
+© 2025 Nerds489

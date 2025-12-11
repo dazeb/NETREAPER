@@ -27,4 +27,4 @@ cp *.md ~/NETREAPER/docs/
 
 ---
 
-© 2025 OFFTRACKMEDIA Studios
+© 2025 Nerds489

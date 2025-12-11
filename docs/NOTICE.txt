@@ -1,6 +1,5 @@
 NETREAPER - Network Security & WiFi Assault Toolkit
-Copyright © 2025 OFFTRACKMEDIA Studios
-ABN: 84 290 819 896
+Copyright © 2025 Nerds489
 
 This project is provided under the Apache License 2.0.
 
@@ -11,5 +10,4 @@ own licensing terms.
 NETREAPER is a wrapper/interface for these tools and does not claim 
 ownership or authorship of any third-party software.
 
-OFFTRACKMEDIA Studios
-"Building Empires, Not Just Brands."
+Nerds489

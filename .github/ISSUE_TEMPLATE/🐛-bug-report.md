@@ -52,4 +52,4 @@ Add any other context about the problem here.
 
 ---
 *NETREAPER - Network Security & WiFi Assault Toolkit*
-*© 2025 OFFTRACKMEDIA Studios*
+*© 2025 Nerds489*

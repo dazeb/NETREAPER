@@ -177,7 +177,7 @@ Contains fundamental functions used everywhere: colors, basic logging, output fo
 #!/usr/bin/env bash
 # SPDX-License-Identifier: Apache-2.0
 # NETREAPER Core Library
-# Copyright 2025 OFFTRACKMEDIA Studios
+# Copyright 2025 Nerds489
 
 # Prevent multiple sourcing
 [[ -n "${_NETREAPER_CORE_LOADED:-}" ]] && return 0
@@ -1517,7 +1517,7 @@ The main `netreaper` script becomes a thin dispatcher that:
 # ═══════════════════════════════════════════════════════════════════════════════
 #
 #    NETREAPER — Unified Offensive Security Framework
-#    Copyright 2025 OFFTRACKMEDIA Studios
+#    Copyright 2025 Nerds489
 #
 #    https://github.com/Nerds489/NETREAPER
 #

@@ -56,4 +56,4 @@ Add any other context, screenshots, or references about the feature request here
 
 ---
 *NETREAPER - Network Security & WiFi Assault Toolkit*
-*© 2025 OFFTRACKMEDIA Studios*
+*© 2025 Nerds489*
