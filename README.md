@@ -34,7 +34,7 @@ NETREAPER is a modular Bash-based offensive security toolkit that unifies 70+ se
 
 ```bash
 # Clone the repository
-git clone https://github.com/OFFTRACKMEDIA/NETREAPER.git
+git clone https://github.com/Nerds489/NETREAPER.git
 cd NETREAPER
 
 # Install (requires root for system-wide installation)
@@ -382,7 +382,7 @@ NR_NON_INTERACTIVE=1 bats tests/*.bats
 ## Legal & License
 
 ```
-Copyright (c) 2025 OFFTRACKMEDIA Studios (ABN: 84 290 819 896)
+Copyright (c) 2025 Nerds489
 SPDX-License-Identifier: Apache-2.0
 
 Licensed under the Apache License, Version 2.0 (the "License");
@@ -425,8 +425,8 @@ The project follows a "batteries included" philosophy: one CLI to rule all your 
 
 ## Support
 
-- **Issues:** https://github.com/OFFTRACKMEDIA/NETREAPER/issues
-- **Discussions:** https://github.com/OFFTRACKMEDIA/NETREAPER/discussions
+- **Issues:** https://github.com/Nerds489/NETREAPER/issues
+- **Discussions:** https://github.com/Nerds489/NETREAPER/discussions
 - **Documentation:** See `docs/` directory for HOWTO, QUICKREF, and TROUBLESHOOTING guides
 
 ---
@@ -435,5 +435,5 @@ The project follows a "batteries included" philosophy: one CLI to rule all your 
   <strong>NETREAPER</strong> — "Some tools scan. Some tools attack. I do both."
 </p>
 <p align="center">
-  © 2025 OFFTRACKMEDIA Studios
+  © 2025 Nerds489
 </p>

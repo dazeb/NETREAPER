@@ -14,8 +14,8 @@ and orientation.
 ## Enforcement
 
 Instances of abusive, harassing, or otherwise unacceptable behavior may be reported to:
-- **Security/Abuse:** security@offtrackmediaofficial.com
-- **Maintainers:** oss@offtrackmediaofficial.com
+- **Security/Abuse:** Open a [Security Advisory](https://github.com/Nerds489/NETREAPER/security/advisories/new)
+- **Maintainers:** Open a [GitHub Discussion](https://github.com/Nerds489/NETREAPER/discussions)
 
 All complaints will be reviewed and investigated promptly and fairly.
 
@@ -25,5 +25,5 @@ This Code of Conduct is adapted from the [Contributor Covenant](https://www.cont
 
 ---
 
-This project is governed by OFFTRACKMEDIA Studios.
-© 2025 · ABN 84 290 819 896
+This project is governed by Nerds489.
+© 2025 Nerds489

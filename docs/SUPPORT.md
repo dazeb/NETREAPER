@@ -24,10 +24,10 @@ See [SECURITY.md](SECURITY.md) - **Do not open public issues for vulnerabilities
 ## Commercial Support
 
 Commercial support and custom development available through:
-- **OFFTRACKMEDIA Studios**
+- **Nerds489**
 
-Contact: oss@offtrackmediaofficial.com
+Contact via [GitHub Discussions](https://github.com/Nerds489/NETREAPER/discussions)
 
 ---
 
-© 2025 OFFTRACKMEDIA Studios
+© 2025 Nerds489

@@ -2,7 +2,7 @@
 # ═══════════════════════════════════════════════════════════════════════════════
 # NETREAPER - Version Resolution Helper
 # ═══════════════════════════════════════════════════════════════════════════════
-# Copyright (c) 2025 OFFTRACKMEDIA Studios (ABN: 84 290 819 896)
+# Copyright (c) 2025 Nerds489
 # SPDX-License-Identifier: Apache-2.0
 #
 # Shared helper for resolving NETREAPER_ROOT and VERSION.

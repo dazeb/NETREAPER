@@ -2,7 +2,7 @@
 # ═══════════════════════════════════════════════════════════════════════════════
 # NETREAPER - Network Security & WiFi Assault Toolkit
 # ═══════════════════════════════════════════════════════════════════════════════
-# Copyright (c) 2025 OFFTRACKMEDIA Studios (ABN: 84 290 819 896)
+# Copyright (c) 2025 Nerds489
 # SPDX-License-Identifier: Apache-2.0
 #
 # Thin dispatcher: sources libraries and modules, then routes to handlers.

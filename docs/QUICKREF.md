@@ -54,4 +54,4 @@
 | `NR_NON_INTERACTIVE` | Set to `1` (or rely on no TTY) to skip the wizard/legal prompts |
 
 ---
-© 2025 OFFTRACKMEDIA Studios
+© 2025 Nerds489
