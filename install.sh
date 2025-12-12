@@ -1,14 +1,128 @@
 #!/usr/bin/env bash
-# NETREAPER Installer Wrapper
-# Installs netreaper command system-wide, then optionally runs tool installer
+# ═══════════════════════════════════════════════════════════════════════════════
+# NETREAPER System Installer
+# ═══════════════════════════════════════════════════════════════════════════════
+# Copies NETREAPER to a system root and creates callable wrappers.
+# Supports all major Linux families: Debian, Fedora, Arch, openSUSE, Alpine.
+#
+# Usage:
+#   sudo ./install.sh              # System install to /opt/netreaper
+#   ./install.sh --user            # User install to ~/.local/share/netreaper
+#   sudo ./install.sh --force      # Overwrite existing installation
+#   sudo ./install.sh --uninstall  # Remove installation
+# ═══════════════════════════════════════════════════════════════════════════════
 
 set -euo pipefail
 
-SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+# Source directory (where this script lives)
+SOURCE_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+
+#═══════════════════════════════════════════════════════════════════════════════
+# ARGUMENT PARSING
+#═══════════════════════════════════════════════════════════════════════════════
+
+OPT_FORCE=0
+OPT_USER=0
+OPT_UNINSTALL=0
+TOOL_INSTALL_ARGS=()
+
+_show_help() {
+    cat << 'HELPTEXT'
+NETREAPER Installer
+
+Usage:
+  sudo ./install.sh [OPTIONS] [-- TOOL_INSTALLER_ARGS...]
+
+Options:
+  --force       Overwrite existing installation
+  --user        Install to user directory (~/.local/share/netreaper)
+  --uninstall   Remove existing installation
+  --help        Show this help message
+
+System Install (requires root):
+  Installs to: /opt/netreaper (preferred) or /usr/local/lib/netreaper
+  Wrapper to:  /usr/local/bin or /usr/bin
+
+User Install (no root required):
+  Installs to: ~/.local/share/netreaper
+  Wrapper to:  ~/.local/bin
+
+Examples:
+  sudo ./install.sh                    # Standard system install
+  sudo ./install.sh --force            # Overwrite existing install
+  ./install.sh --user                  # User-local install
+  sudo ./install.sh -- --all           # Install + run tool installer with --all
+HELPTEXT
+}
+
+while [[ $# -gt 0 ]]; do
+    case "$1" in
+        --force)
+            OPT_FORCE=1
+            shift
+            ;;
+        --user)
+            OPT_USER=1
+            shift
+            ;;
+        --uninstall)
+            OPT_UNINSTALL=1
+            shift
+            ;;
+        --help|-h)
+            _show_help
+            exit 0
+            ;;
+        --)
+            shift
+            TOOL_INSTALL_ARGS=("$@")
+            break
+            ;;
+        *)
+            # Assume remaining args are for tool installer (backwards compat)
+            TOOL_INSTALL_ARGS=("$@")
+            break
+            ;;
+    esac
+done
 
 #═══════════════════════════════════════════════════════════════════════════════
 # HELPER FUNCTIONS
 #═══════════════════════════════════════════════════════════════════════════════
+
+_log() {
+    echo "[*] $*" >&2
+}
+
+_warn() {
+    echo "[!] $*" >&2
+}
+
+_error() {
+    echo "[FATAL] $*" >&2
+}
+
+_success() {
+    echo "[✓] $*" >&2
+}
+
+# Check if running as root
+_is_root() {
+    [[ $EUID -eq 0 ]]
+}
+
+# Check if a directory is writable (or can be created)
+_is_writable() {
+    local dir="$1"
+    if [[ -d "$dir" ]]; then
+        [[ -w "$dir" ]]
+    else
+        # Check if parent is writable (for creation)
+        local parent
+        parent="$(dirname "$dir")"
+        [[ -d "$parent" && -w "$parent" ]]
+    fi
+}
 
 # Check if a directory is in PATH
 _dir_in_path() {
@@ -16,230 +130,460 @@ _dir_in_path() {
     [[ ":$PATH:" == *":$dir:"* ]]
 }
 
-# Determine the best install directory that's on PATH
-# Returns: the chosen install dir via stdout
-_select_install_dir() {
-    # Preference order: /usr/local/bin (standard), /usr/bin (fallback)
-    if _dir_in_path "/usr/local/bin"; then
-        echo "/usr/local/bin"
-        return 0
-    fi
-    if _dir_in_path "/usr/bin"; then
-        echo "/usr/bin"
-        return 0
-    fi
-    # Neither is on PATH - we'll use /usr/local/bin and fix PATH
-    echo "/usr/local/bin"
-    return 1
-}
-
-# Create profile.d drop-in to add /usr/local/bin to PATH
-_create_path_dropin() {
-    local dropin="/etc/profile.d/netreaper.sh"
-    echo "[*] Creating PATH drop-in: $dropin" >&2
-    cat > "$dropin" << 'DROPIN'
-# Added by NETREAPER installer to ensure /usr/local/bin is in PATH
-if [[ ":$PATH:" != *":/usr/local/bin:"* ]]; then
-    export PATH="/usr/local/bin:$PATH"
-fi
-DROPIN
-    chmod 644 "$dropin"
-    echo "[*] Drop-in created. /usr/local/bin will be added to PATH on next login." >&2
-    # Source it now for current shell
-    export PATH="/usr/local/bin:$PATH"
-}
-
 #═══════════════════════════════════════════════════════════════════════════════
-# LEGACY CLEANUP (MANDATORY - HARD FAIL IF REMOVAL FAILS)
+# INSTALL LOCATION SELECTION
 #═══════════════════════════════════════════════════════════════════════════════
-# Hard-delete legacy monolithic netreaper (v5.x) - it is broken and unsupported
-# Bug: "sudo: Argument list too long" - causes complete failure
-# The legacy monolith MUST be removed before installation can proceed.
-_legacy_found=0
-_legacy_removal_failed=0
-for legacy_bin in /usr/local/bin/netreaper /usr/local/bin/netreaper-install /usr/bin/netreaper /usr/bin/netreaper-install; do
-    if [[ -f "$legacy_bin" ]]; then
-        # Check if it's a legacy monolith (>100KB) or existing modular install
-        _file_size=0
-        _file_size=$(stat -c%s "$legacy_bin" 2>/dev/null || stat -f%z "$legacy_bin" 2>/dev/null || echo "0")
-        if [[ "$_file_size" -gt 100000 ]]; then
-            if [[ $_legacy_found -eq 0 ]]; then
-                echo "[!] Legacy install detected - removing broken v5.x monolith" >&2
-                _legacy_found=1
+
+# Select the install root directory
+# Sets: INSTALL_ROOT, BIN_DIR
+_select_install_locations() {
+    if [[ $OPT_USER -eq 1 ]] || ! _is_root; then
+        # User install
+        INSTALL_ROOT="${HOME}/.local/share/netreaper"
+        BIN_DIR="${HOME}/.local/bin"
+        _log "User install mode selected"
+    else
+        # System install - try locations in priority order
+        local -a roots=("/opt/netreaper" "/usr/local/lib/netreaper" "/usr/lib/netreaper")
+        INSTALL_ROOT=""
+
+        for root in "${roots[@]}"; do
+            if _is_writable "$(dirname "$root")"; then
+                INSTALL_ROOT="$root"
+                break
             fi
-            if ! rm -f "$legacy_bin" 2>/dev/null; then
-                echo "[FATAL] Could not remove legacy file: $legacy_bin" >&2
-                echo "        Permission denied or file is read-only." >&2
-                echo "        Run this installer with sudo, or manually remove:" >&2
-                echo "          sudo rm -f $legacy_bin" >&2
-                _legacy_removal_failed=1
-            else
-                echo "[*] Removed legacy monolith: $legacy_bin" >&2
-            fi
+        done
+
+        if [[ -z "$INSTALL_ROOT" ]]; then
+            _error "Cannot find writable system directory for installation"
+            _error "Tried: ${roots[*]}"
+            _error "Run with --user for user-local install, or fix permissions"
+            exit 1
+        fi
+
+        # Select bin directory
+        if _is_writable "/usr/local/bin" || [[ ! -d "/usr/local/bin" ]]; then
+            BIN_DIR="/usr/local/bin"
+        elif _is_writable "/usr/bin"; then
+            BIN_DIR="/usr/bin"
         else
-            # Small file - remove it to reinstall fresh
-            rm -f "$legacy_bin" 2>/dev/null || true
+            _error "Cannot find writable bin directory (/usr/local/bin or /usr/bin)"
+            exit 1
+        fi
+
+        _log "System install mode selected"
+    fi
+
+    _log "Install root: $INSTALL_ROOT"
+    _log "Bin directory: $BIN_DIR"
+}
+
+#═══════════════════════════════════════════════════════════════════════════════
+# UNINSTALL
+#═══════════════════════════════════════════════════════════════════════════════
+
+_do_uninstall() {
+    _log "Uninstalling NETREAPER..."
+
+    local -a roots=("/opt/netreaper" "/usr/local/lib/netreaper" "/usr/lib/netreaper" "${HOME}/.local/share/netreaper")
+    local -a bins=("/usr/local/bin" "/usr/bin" "${HOME}/.local/bin")
+    local uninstall_removed_any=0
+    local uninstall_failed_any=0
+
+    # Remove install roots
+    for root in "${roots[@]}"; do
+        if [[ -d "$root" ]]; then
+            _log "Removing: $root"
+            if rm -rf "$root" 2>/dev/null; then
+                uninstall_removed_any=1
+            else
+                _warn "Failed to remove: $root"
+                uninstall_failed_any=1
+            fi
+        fi
+    done
+
+    # Remove wrappers
+    for bindir in "${bins[@]}"; do
+        for wrapper in "$bindir/netreaper" "$bindir/netreaper-install"; do
+            if [[ -f "$wrapper" ]]; then
+                _log "Removing wrapper: $wrapper"
+                if rm -f "$wrapper" 2>/dev/null; then
+                    uninstall_removed_any=1
+                else
+                    _warn "Failed to remove: $wrapper"
+                    uninstall_failed_any=1
+                fi
+            fi
+        done
+    done
+
+    # Remove PATH drop-in if exists
+    if [[ -f "/etc/profile.d/netreaper.sh" ]]; then
+        _log "Removing PATH drop-in: /etc/profile.d/netreaper.sh"
+        if rm -f "/etc/profile.d/netreaper.sh" 2>/dev/null; then
+            uninstall_removed_any=1
+        else
+            _warn "Failed to remove: /etc/profile.d/netreaper.sh"
+            uninstall_failed_any=1
         fi
     fi
-done
 
-# Hard-fail if any legacy removal failed
-if [[ $_legacy_removal_failed -eq 1 ]]; then
-    echo "" >&2
-    echo "[FATAL] Legacy cleanup failed. Cannot proceed with installation." >&2
-    echo "        The v5.x monolithic install is broken and must be removed." >&2
-    exit 1
-fi
-
-[[ $_legacy_found -eq 1 ]] && echo "[*] Modular version (v6.x) will be installed" >&2 || true
-
-#═══════════════════════════════════════════════════════════════════════════════
-# INSTALL NETREAPER COMMAND (CALLABLE COMMAND GUARANTEE)
-#═══════════════════════════════════════════════════════════════════════════════
-
-echo "[*] Installing netreaper command..." >&2
-
-# Determine install directory
-INSTALL_DIR=""
-_path_needs_fix=0
-if INSTALL_DIR=$(_select_install_dir); then
-    : # Directory is on PATH
-else
-    _path_needs_fix=1
-fi
-
-# Ensure install directory exists
-mkdir -p "$INSTALL_DIR" 2>/dev/null || true
-
-# Install netreaper wrapper
-if [[ -f "$SCRIPT_DIR/bin/netreaper" ]]; then
-    # Create a wrapper that points to our repo location
-    cat > "$INSTALL_DIR/netreaper" << WRAPPER
-#!/usr/bin/env bash
-# NETREAPER modular wrapper - installed by install.sh
-# Points to: $SCRIPT_DIR
-exec "$SCRIPT_DIR/bin/netreaper" "\$@"
-WRAPPER
-    chmod 755 "$INSTALL_DIR/netreaper"
-    echo "[*] Installed: $INSTALL_DIR/netreaper" >&2
-else
-    echo "[FATAL] bin/netreaper not found in $SCRIPT_DIR" >&2
-    exit 1
-fi
-
-# Install netreaper-install wrapper
-if [[ -f "$SCRIPT_DIR/bin/netreaper-install" ]]; then
-    cat > "$INSTALL_DIR/netreaper-install" << WRAPPER
-#!/usr/bin/env bash
-# NETREAPER installer wrapper - installed by install.sh
-# Points to: $SCRIPT_DIR
-exec "$SCRIPT_DIR/bin/netreaper-install" "\$@"
-WRAPPER
-    chmod 755 "$INSTALL_DIR/netreaper-install"
-    echo "[*] Installed: $INSTALL_DIR/netreaper-install" >&2
-fi
-
-# Fix PATH if needed
-if [[ $_path_needs_fix -eq 1 ]]; then
-    _create_path_dropin
-fi
-
-#═══════════════════════════════════════════════════════════════════════════════
-# VERIFY CALLABLE COMMAND
-#═══════════════════════════════════════════════════════════════════════════════
-
-echo "[*] Verifying installation..." >&2
-
-# Refresh PATH to include our changes
-export PATH="$INSTALL_DIR:$PATH"
-
-if ! command -v netreaper &>/dev/null; then
-    echo "" >&2
-    echo "[FATAL] Installation verification FAILED!" >&2
-    echo "        'netreaper' command is not callable." >&2
-    echo "" >&2
-    echo "        Install location: $INSTALL_DIR/netreaper" >&2
-    echo "        Current PATH: $PATH" >&2
-    echo "" >&2
-    if [[ $_path_needs_fix -eq 1 ]]; then
-        echo "        A PATH drop-in was created at /etc/profile.d/netreaper.sh" >&2
-        echo "        Please start a new shell or run: source /etc/profile.d/netreaper.sh" >&2
+    # Final summary with proper exit codes
+    if [[ $uninstall_failed_any -eq 1 ]]; then
+        _warn "Uninstall incomplete - some files could not be removed (permission denied?)"
+        exit 1
+    elif [[ $uninstall_removed_any -eq 1 ]]; then
+        _success "Uninstall complete"
+        exit 0
     else
-        echo "        Ensure $INSTALL_DIR is in your PATH." >&2
+        _warn "No existing installation found"
+        exit 0
     fi
-    exit 1
-fi
-
-echo "[✓] netreaper command is callable: $(command -v netreaper)" >&2
+}
 
 #═══════════════════════════════════════════════════════════════════════════════
-# RUN TOOL INSTALLER (OPTIONAL - only if args provided)
+# LEGACY CLEANUP
 #═══════════════════════════════════════════════════════════════════════════════
-if [[ $# -gt 0 ]]; then
-    if [[ ! -x "$SCRIPT_DIR/bin/netreaper-install" ]]; then
-        echo "ERROR: bin/netreaper-install not found or not executable" >&2
+# Remove broken v5.x monolithic installs (>100KB binaries)
+
+_cleanup_legacy() {
+    # System paths vs user paths - distinguished for permission handling
+    local -a system_legacy_bins=("/usr/local/bin/netreaper" "/usr/local/bin/netreaper-install"
+                                  "/usr/bin/netreaper" "/usr/bin/netreaper-install")
+    local -a user_legacy_bins=("${HOME}/.local/bin/netreaper" "${HOME}/.local/bin/netreaper-install")
+    local legacy_found=0
+    local removal_failed=0
+
+    # Helper to check and remove a legacy binary
+    # Args: $1 = path, $2 = "system" or "user"
+    _try_remove_legacy() {
+        local legacy_bin="$1"
+        local path_type="$2"
+
+        if [[ ! -f "$legacy_bin" ]]; then
+            return 0
+        fi
+
+        local file_size=0
+        file_size=$(stat -c%s "$legacy_bin" 2>/dev/null || stat -f%z "$legacy_bin" 2>/dev/null || echo "0")
+
+        if [[ "$file_size" -le 100000 ]]; then
+            return 0  # Not a legacy monolith
+        fi
+
+        if [[ $legacy_found -eq 0 ]]; then
+            _warn "Legacy v5.x monolith detected - removing"
+            legacy_found=1
+        fi
+
+        if rm -f "$legacy_bin" 2>/dev/null; then
+            _log "Removed legacy: $legacy_bin"
+            return 0
+        fi
+
+        # Removal failed
+        if [[ "$path_type" == "system" ]] && ! _is_root; then
+            # Non-root user cannot remove system paths - warn only, don't block
+            _warn "Cannot remove legacy system file (no permission): $legacy_bin"
+            _warn "This won't block your --user install, but you may want to remove it later with sudo."
+            return 0  # Don't fail for --user installs
+        else
+            # Root user OR user path - this is fatal
+            _error "Could not remove legacy file: $legacy_bin"
+            _error "Permission denied. Run with sudo or manually remove."
+            removal_failed=1
+            return 1
+        fi
+    }
+
+    # Process system paths
+    for legacy_bin in "${system_legacy_bins[@]}"; do
+        _try_remove_legacy "$legacy_bin" "system"
+    done
+
+    # Process user paths
+    for legacy_bin in "${user_legacy_bins[@]}"; do
+        _try_remove_legacy "$legacy_bin" "user"
+    done
+
+    if [[ $removal_failed -eq 1 ]]; then
+        _error "Legacy cleanup failed. Cannot proceed."
+        exit 1
+    fi
+}
+
+#═══════════════════════════════════════════════════════════════════════════════
+# INSTALLATION
+#═══════════════════════════════════════════════════════════════════════════════
+
+_do_install() {
+    # Check if install root already exists
+    if [[ -d "$INSTALL_ROOT" ]]; then
+        if [[ $OPT_FORCE -eq 1 ]]; then
+            _warn "Removing existing installation at $INSTALL_ROOT (--force)"
+            rm -rf "$INSTALL_ROOT"
+        else
+            _error "Installation already exists at: $INSTALL_ROOT"
+            _error "Use --force to overwrite, or --uninstall to remove first"
+            exit 1
+        fi
+    fi
+
+    # Validate source directory has required files
+    if [[ ! -f "$SOURCE_DIR/bin/netreaper" ]]; then
+        _error "Source validation failed: bin/netreaper not found in $SOURCE_DIR"
+        exit 1
+    fi
+    if [[ ! -f "$SOURCE_DIR/VERSION" ]]; then
+        _error "Source validation failed: VERSION file not found in $SOURCE_DIR"
+        exit 1
+    fi
+    if [[ ! -d "$SOURCE_DIR/lib" ]]; then
+        _error "Source validation failed: lib/ directory not found in $SOURCE_DIR"
         exit 1
     fi
 
-    echo "[*] Running tool installer with args: $*" >&2
-    "$SCRIPT_DIR/bin/netreaper-install" "$@"
-    _install_exit=$?
+    # Create install root
+    _log "Creating install directory: $INSTALL_ROOT"
+    mkdir -p "$INSTALL_ROOT"
 
-    if [[ $_install_exit -ne 0 ]]; then
-        echo "[FATAL] Tool installation failed with exit code $_install_exit" >&2
-        exit $_install_exit
+    # Copy project files (excluding .git, tests, docs for size)
+    _log "Copying NETREAPER to $INSTALL_ROOT..."
+
+    # Required directories
+    cp -r "$SOURCE_DIR/bin" "$INSTALL_ROOT/"
+    cp -r "$SOURCE_DIR/lib" "$INSTALL_ROOT/"
+    cp -r "$SOURCE_DIR/modules" "$INSTALL_ROOT/"
+
+    # Required files
+    cp "$SOURCE_DIR/VERSION" "$INSTALL_ROOT/"
+    cp "$SOURCE_DIR/LICENSE" "$INSTALL_ROOT/" 2>/dev/null || true
+
+    # Optional: completions
+    if [[ -d "$SOURCE_DIR/completions" ]]; then
+        cp -r "$SOURCE_DIR/completions" "$INSTALL_ROOT/"
     fi
+
+    # Ensure bin scripts are executable
+    chmod +x "$INSTALL_ROOT/bin/netreaper"
+    chmod +x "$INSTALL_ROOT/bin/netreaper-install" 2>/dev/null || true
+
+    _log "Project files copied successfully"
+
+    # Create bin directory if needed
+    mkdir -p "$BIN_DIR"
+
+    # Remove any existing wrappers in target bin dir
+    rm -f "$BIN_DIR/netreaper" "$BIN_DIR/netreaper-install" 2>/dev/null || true
+
+    # Create netreaper wrapper
+    _log "Creating wrapper: $BIN_DIR/netreaper"
+    cat > "$BIN_DIR/netreaper" << WRAPPER
+#!/usr/bin/env bash
+# NETREAPER wrapper - installed by install.sh
+# Install root: $INSTALL_ROOT
+
+export NETREAPER_ROOT="$INSTALL_ROOT"
+exec "\$NETREAPER_ROOT/bin/netreaper" "\$@"
+WRAPPER
+    chmod 755 "$BIN_DIR/netreaper"
+
+    # Create netreaper-install wrapper
+    if [[ -f "$INSTALL_ROOT/bin/netreaper-install" ]]; then
+        _log "Creating wrapper: $BIN_DIR/netreaper-install"
+        cat > "$BIN_DIR/netreaper-install" << WRAPPER
+#!/usr/bin/env bash
+# NETREAPER installer wrapper - installed by install.sh
+# Install root: $INSTALL_ROOT
+
+export NETREAPER_ROOT="$INSTALL_ROOT"
+exec "\$NETREAPER_ROOT/bin/netreaper-install" "\$@"
+WRAPPER
+        chmod 755 "$BIN_DIR/netreaper-install"
+    fi
+
+    # Handle PATH for user installs
+    if [[ $OPT_USER -eq 1 ]] || ! _is_root; then
+        if ! _dir_in_path "$BIN_DIR"; then
+            _warn "$BIN_DIR is not in your PATH"
+            _warn "Add to your shell rc file:"
+            _warn "  export PATH=\"$BIN_DIR:\$PATH\""
+        fi
+    else
+        # System install - create profile.d drop-in if needed
+        if ! _dir_in_path "$BIN_DIR"; then
+            if [[ -d "/etc/profile.d" ]] && _is_writable "/etc/profile.d"; then
+                _log "Creating PATH drop-in: /etc/profile.d/netreaper.sh"
+                cat > "/etc/profile.d/netreaper.sh" << DROPIN
+# Added by NETREAPER installer
+if [[ ":\$PATH:" != *":$BIN_DIR:"* ]]; then
+    export PATH="$BIN_DIR:\$PATH"
 fi
-
-#═══════════════════════════════════════════════════════════════════════════════
-# POST-INSTALL VERIFICATION
-#═══════════════════════════════════════════════════════════════════════════════
-# Verify the installed netreaper is the modular wrapper, not a legacy monolith.
-# The modular wrapper sources from lib/ and is small; the monolith is 200KB+.
-
-_verify_modular_install() {
-    local installed_bin="/usr/local/bin/netreaper"
-
-    # Check if the binary exists
-    if [[ ! -f "$installed_bin" ]]; then
-        echo "[WARN] Post-install verification skipped: $installed_bin not found" >&2
-        echo "       (This is OK if you used a custom PREFIX)" >&2
-        return 0
+DROPIN
+                chmod 644 "/etc/profile.d/netreaper.sh"
+            fi
+        fi
     fi
 
-    # Check file size - modular wrapper should be small (<50KB)
-    # Legacy monolith is 200KB+ (6000+ lines embedded)
-    local file_size
-    file_size=$(stat -c%s "$installed_bin" 2>/dev/null || stat -f%z "$installed_bin" 2>/dev/null || echo "0")
-
-    if [[ "$file_size" -gt 100000 ]]; then
-        echo "" >&2
-        echo "[FATAL] Post-install verification FAILED!" >&2
-        echo "        $installed_bin appears to be a legacy monolith (size: ${file_size} bytes)" >&2
-        echo "        The modular wrapper should be <50KB." >&2
-        echo "        This indicates the installation did not complete correctly." >&2
-        echo "" >&2
-        echo "        To fix: run ./reinstall-netreaper.sh or manually remove and reinstall" >&2
-        return 1
-    fi
-
-    # Check for modular indicators (sources lib/)
-    if ! grep -q 'NETREAPER_ROOT' "$installed_bin" 2>/dev/null; then
-        echo "" >&2
-        echo "[FATAL] Post-install verification FAILED!" >&2
-        echo "        $installed_bin does not appear to be the modular wrapper." >&2
-        echo "        Missing NETREAPER_ROOT variable - likely a legacy monolith." >&2
-        echo "" >&2
-        echo "        To fix: run ./reinstall-netreaper.sh or manually remove and reinstall" >&2
-        return 1
-    fi
-
-    echo "[*] Post-install verification: OK (modular wrapper installed)" >&2
-    return 0
+    _success "Installation complete: $INSTALL_ROOT"
 }
 
-if ! _verify_modular_install; then
-    exit 1
-fi
+#═══════════════════════════════════════════════════════════════════════════════
+# POST-INSTALL VERIFICATION (STRICT)
+#═══════════════════════════════════════════════════════════════════════════════
 
-exit 0
+_verify_installation() {
+    _log "Running post-install verification..."
+
+    local errors=0
+
+    # Ensure BIN_DIR is in PATH for verification
+    export PATH="$BIN_DIR:$PATH"
+
+    # 1. Check command resolves
+    local wrapper_path
+    wrapper_path="$(command -v netreaper 2>/dev/null || true)"
+    if [[ -z "$wrapper_path" ]]; then
+        _error "VERIFY FAILED: 'netreaper' command not found in PATH"
+        _error "PATH includes: $PATH"
+        errors=$((errors + 1))
+    else
+        _log "Command resolves to: $wrapper_path"
+    fi
+
+    # 2. Check wrapper exists and is in expected location
+    if [[ "$wrapper_path" != "$BIN_DIR/netreaper" ]]; then
+        _error "VERIFY FAILED: Wrapper not in expected location"
+        _error "Expected: $BIN_DIR/netreaper"
+        _error "Got: $wrapper_path"
+        errors=$((errors + 1))
+    fi
+
+    # 3. Check wrapper is small (<100KB - not a monolith)
+    if [[ -f "$wrapper_path" ]]; then
+        local wrapper_size
+        wrapper_size=$(stat -c%s "$wrapper_path" 2>/dev/null || stat -f%z "$wrapper_path" 2>/dev/null || echo "0")
+        if [[ "$wrapper_size" -gt 100000 ]]; then
+            _error "VERIFY FAILED: Wrapper is too large (${wrapper_size} bytes)"
+            _error "This suggests a legacy monolith, not a wrapper"
+            errors=$((errors + 1))
+        fi
+    fi
+
+    # 4. Check wrapper contains NETREAPER_ROOT export
+    if [[ -f "$wrapper_path" ]]; then
+        if ! grep -q 'export NETREAPER_ROOT=' "$wrapper_path" 2>/dev/null; then
+            _error "VERIFY FAILED: Wrapper missing NETREAPER_ROOT export"
+            errors=$((errors + 1))
+        fi
+    fi
+
+    # 5. Check NETREAPER_ROOT points to install root (not source repo)
+    if [[ -f "$wrapper_path" ]]; then
+        local embedded_root
+        embedded_root=$(grep 'export NETREAPER_ROOT=' "$wrapper_path" | sed 's/.*NETREAPER_ROOT="\([^"]*\)".*/\1/' | head -1)
+        if [[ "$embedded_root" != "$INSTALL_ROOT" ]]; then
+            _error "VERIFY FAILED: NETREAPER_ROOT points to wrong location"
+            _error "Expected: $INSTALL_ROOT"
+            _error "Got: $embedded_root"
+            errors=$((errors + 1))
+        fi
+        # Also verify it's not pointing to a /home/* path (source repo)
+        if [[ "$embedded_root" == /home/* ]] && [[ "$OPT_USER" -ne 1 ]]; then
+            _error "VERIFY FAILED: NETREAPER_ROOT points to home directory"
+            _error "System installs must not reference user home directories"
+            _error "Got: $embedded_root"
+            errors=$((errors + 1))
+        fi
+    fi
+
+    # 6. Check install root exists and has required files
+    if [[ ! -d "$INSTALL_ROOT" ]]; then
+        _error "VERIFY FAILED: Install root does not exist: $INSTALL_ROOT"
+        errors=$((errors + 1))
+    else
+        if [[ ! -x "$INSTALL_ROOT/bin/netreaper" ]]; then
+            _error "VERIFY FAILED: $INSTALL_ROOT/bin/netreaper not executable"
+            errors=$((errors + 1))
+        fi
+        if [[ ! -f "$INSTALL_ROOT/VERSION" ]]; then
+            _error "VERIFY FAILED: $INSTALL_ROOT/VERSION not found"
+            errors=$((errors + 1))
+        fi
+        if [[ ! -d "$INSTALL_ROOT/lib" ]]; then
+            _error "VERIFY FAILED: $INSTALL_ROOT/lib/ directory not found"
+            errors=$((errors + 1))
+        fi
+    fi
+
+    # 7. Test actual execution
+    # Guard: wrapper_path must be non-empty, a file, and executable
+    if [[ -z "$wrapper_path" ]]; then
+        _error "VERIFY FAILED: Cannot test execution - wrapper_path is empty"
+        errors=$((errors + 1))
+    elif [[ ! -f "$wrapper_path" ]]; then
+        _error "VERIFY FAILED: Cannot test execution - wrapper is not a file: $wrapper_path"
+        errors=$((errors + 1))
+    elif [[ ! -x "$wrapper_path" ]]; then
+        _error "VERIFY FAILED: Cannot test execution - wrapper is not executable: $wrapper_path"
+        errors=$((errors + 1))
+    else
+        local version_output
+        version_output=$("$wrapper_path" --version 2>&1 || true)
+        if [[ -z "$version_output" ]] || [[ "$version_output" == *"ERROR"* ]]; then
+            _error "VERIFY FAILED: netreaper --version failed"
+            _error "Output: $version_output"
+            errors=$((errors + 1))
+        else
+            _log "Version output: $version_output"
+        fi
+    fi
+
+    # Final result
+    if [[ $errors -gt 0 ]]; then
+        _error "Post-install verification FAILED with $errors error(s)"
+        exit 1
+    fi
+
+    _success "Post-install verification PASSED"
+}
+
+#═══════════════════════════════════════════════════════════════════════════════
+# MAIN
+#═══════════════════════════════════════════════════════════════════════════════
+
+main() {
+    echo "═══════════════════════════════════════════════════════════════════" >&2
+    echo " NETREAPER Installer" >&2
+    echo "═══════════════════════════════════════════════════════════════════" >&2
+
+    # Handle uninstall
+    if [[ $OPT_UNINSTALL -eq 1 ]]; then
+        _do_uninstall
+    fi
+
+    # Select install locations
+    _select_install_locations
+
+    # Cleanup legacy installs
+    _cleanup_legacy
+
+    # Perform installation
+    _do_install
+
+    # Verify installation
+    _verify_installation
+
+    # Run tool installer if args provided
+    if [[ ${#TOOL_INSTALL_ARGS[@]} -gt 0 ]]; then
+        _log "Running tool installer with args: ${TOOL_INSTALL_ARGS[*]}"
+        "$BIN_DIR/netreaper-install" "${TOOL_INSTALL_ARGS[@]}"
+    fi
+
+    echo "" >&2
+    _success "NETREAPER installed successfully!"
+    _log "Run 'netreaper --help' to get started"
+}
+
+main "$@"
