@@ -304,3 +304,98 @@ setup() {
     [[ "$output" == *"Installed:"* ]]
     [[ "$output" == *"Missing:"* ]]
 }
+
+#───────────────────────────────────────────────────────────────────────────────
+# Expanded tool detection tests
+#───────────────────────────────────────────────────────────────────────────────
+
+@test "get_tool_path returns 1 for empty argument" {
+    run bash -c '
+        source ./lib/core.sh
+        source ./lib/detection.sh
+        get_tool_path ""
+    '
+    [ "$status" -eq 1 ]
+}
+
+@test "TOOL_SEARCH_PATHS includes standard directories" {
+    # Verify the array contains expected paths
+    [[ " ${TOOL_SEARCH_PATHS[*]} " == *" /usr/bin "* ]]
+    [[ " ${TOOL_SEARCH_PATHS[*]} " == *" /usr/sbin "* ]]
+    [[ " ${TOOL_SEARCH_PATHS[*]} " == *" /usr/local/bin "* ]]
+    [[ " ${TOOL_SEARCH_PATHS[*]} " == *" /usr/local/sbin "* ]]
+    [[ " ${TOOL_SEARCH_PATHS[*]} " == *" /sbin "* ]]
+    [[ " ${TOOL_SEARCH_PATHS[*]} " == *" /bin "* ]]
+}
+
+#───────────────────────────────────────────────────────────────────────────────
+# Distro-aware package name tests
+#───────────────────────────────────────────────────────────────────────────────
+
+@test "tool_package_name returns correct package for dig on debian family" {
+    # Set distro family to debian
+    DISTRO_FAMILY="debian"
+    result=$(tool_package_name "dig")
+    [ "$result" = "dnsutils" ]
+}
+
+@test "tool_package_name returns correct package for dig on redhat family" {
+    DISTRO_FAMILY="redhat"
+    result=$(tool_package_name "dig")
+    [ "$result" = "bind-utils" ]
+}
+
+@test "tool_package_name returns correct package for dig on arch family" {
+    DISTRO_FAMILY="arch"
+    result=$(tool_package_name "dig")
+    [ "$result" = "bind" ]
+}
+
+@test "tool_package_name maps airodump-ng to aircrack-ng" {
+    result=$(tool_package_name "airodump-ng")
+    [ "$result" = "aircrack-ng" ]
+}
+
+@test "tool_package_name maps aireplay-ng to aircrack-ng" {
+    result=$(tool_package_name "aireplay-ng")
+    [ "$result" = "aircrack-ng" ]
+}
+
+@test "tool_package_name maps airmon-ng to aircrack-ng" {
+    result=$(tool_package_name "airmon-ng")
+    [ "$result" = "aircrack-ng" ]
+}
+
+@test "tool_package_name returns tool name for unknown tool" {
+    result=$(tool_package_name "unknown_tool_xyz123")
+    [ "$result" = "unknown_tool_xyz123" ]
+}
+
+@test "tool_package_name returns 1 for empty input" {
+    run tool_package_name ""
+    [ "$status" -eq 1 ]
+}
+
+@test "tool_package_name returns tshark for debian family" {
+    DISTRO_FAMILY="debian"
+    result=$(tool_package_name "tshark")
+    [ "$result" = "tshark" ]
+}
+
+@test "tool_package_name returns wireshark-cli for arch family tshark" {
+    DISTRO_FAMILY="arch"
+    result=$(tool_package_name "tshark")
+    [ "$result" = "wireshark-cli" ]
+}
+
+@test "tool_package_name returns netcat-openbsd for debian family netcat" {
+    DISTRO_FAMILY="debian"
+    result=$(tool_package_name "netcat")
+    [ "$result" = "netcat-openbsd" ]
+}
+
+@test "tool_package_name returns nmap-ncat for redhat family netcat" {
+    DISTRO_FAMILY="redhat"
+    result=$(tool_package_name "netcat")
+    [ "$result" = "nmap-ncat" ]
+}

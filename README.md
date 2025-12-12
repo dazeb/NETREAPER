@@ -13,10 +13,10 @@
 
 <h1 align="center">NETREAPER</h1>
 <p align="center"><strong>Offensive Security Framework</strong></p>
-<p align="center">v6.3.2 — Phase 3: Core Infrastructure</p>
+<p align="center">v6.3.3 — Phase 3: Core Infrastructure</p>
 
 <p align="center">
-  <img src="https://img.shields.io/badge/version-6.3.2-red?style=flat-square" alt="Version">
+  <img src="https://img.shields.io/badge/version-6.3.3-red?style=flat-square" alt="Version">
   <img src="https://img.shields.io/badge/license-Apache%202.0-blue?style=flat-square" alt="License">
   <img src="https://img.shields.io/badge/platform-Linux-lightgrey?style=flat-square" alt="Platform">
   <img src="https://img.shields.io/badge/shell-Bash%205.0+-green?style=flat-square" alt="Shell">
@@ -43,7 +43,7 @@ sudo ./install.sh
 
 The `install.sh` wrapper delegates to `bin/netreaper-install`, which handles tool installation, system-wide symlinks, and dependency management.
 
-> **⚠️ NETREAPER v5.x monolithic installs are obsolete and unsupported.**
+> **NETREAPER v5.x monolithic installs are obsolete and unsupported.**
 > The installer **hard-removes** legacy binaries and will **fail** if removal is not possible.
 > If you have `/usr/local/bin/netreaper` from v5.x, it will be deleted during installation.
 
@@ -66,6 +66,116 @@ sudo NR_NON_INTERACTIVE=1 NR_FORCE_REINSTALL=1 ./reinstall-netreaper.sh
 ./netreaper --help
 ./netreaper-install --help
 ```
+
+---
+
+## Installer Guarantees
+
+The `install.sh` installer provides the following guarantees to ensure `netreaper` is always callable after installation:
+
+### Wrapper Scripts
+
+The installer creates **thin wrapper scripts** in a system PATH directory (e.g., `/usr/local/bin/netreaper`) that point to the actual executables in `bin/netreaper` and `bin/netreaper-install`. This ensures:
+
+- `netreaper` works from any directory
+- No need to modify PATH manually in most cases
+- Clean separation between system binaries and project source
+
+### Install Directory Selection
+
+The installer uses `_select_install_dir()` to choose the best installation directory:
+
+1. **`/usr/local/bin`** — preferred if it exists and is in PATH
+2. **`/usr/bin`** — fallback if `/usr/local/bin` is unavailable
+3. **Custom fallback** — if neither is in PATH, the installer creates a PATH drop-in file
+
+### PATH Drop-in File
+
+If the selected install directory is not in the user's PATH, the installer creates `/etc/profile.d/netreaper.sh`:
+
+```bash
+# /etc/profile.d/netreaper.sh
+export PATH="/usr/local/bin:$PATH"
+```
+
+This ensures the install directory is added to PATH for all users on next login.
+
+### Hard-Fail Verification
+
+After installation completes, the installer runs:
+
+```bash
+command -v netreaper
+```
+
+If this command fails (i.e., `netreaper` is not callable), **the installer exits with an error**. This prevents silent installation failures where the binary exists but isn't accessible.
+
+### Argument Guard
+
+`bin/netreaper-install` only executes its main logic if arguments are provided. Running it without arguments displays help and exits, preventing accidental execution.
+
+---
+
+## Tool Detection & Auto-Install
+
+NETREAPER provides intelligent tool detection and automatic installation that works across all major Linux distributions.
+
+### Tool Search Paths
+
+The `check_tool()` and `get_tool_path()` functions search for tools in the following directories (defined in `TOOL_SEARCH_PATHS`):
+
+```
+/usr/bin
+/usr/local/bin
+/usr/sbin
+/usr/local/sbin
+/sbin
+/bin
+/opt/bin
+~/.local/bin
+~/go/bin
+```
+
+This ensures tools installed via system packages, pip, cargo, go, or manual installation are all detected.
+
+### Distro-Aware Package Name Resolution
+
+Different Linux distributions use different package names for the same tool. The `tool_package_name()` function resolves the correct package name based on your distro family:
+
+| Tool | Debian/Ubuntu | RHEL/Fedora | Arch |
+|------|---------------|-------------|------|
+| `dig` | `dnsutils` | `bind-utils` | `bind` |
+| `tshark` | `tshark` | `wireshark-cli` | `wireshark-cli` |
+| `netcat` | `netcat-openbsd` | `nmap-ncat` | `openbsd-netcat` |
+| `aircrack-ng` | `aircrack-ng` | `aircrack-ng` | `aircrack-ng` |
+| `airodump-ng` | `aircrack-ng` | `aircrack-ng` | `aircrack-ng` |
+| `aireplay-ng` | `aircrack-ng` | `aircrack-ng` | `aircrack-ng` |
+| `airmon-ng` | `aircrack-ng` | `aircrack-ng` | `aircrack-ng` |
+
+### Auto-Install Behavior
+
+When `auto_install_tool()` is called:
+
+1. Detects the current distro family (debian, redhat, arch, suse, alpine)
+2. Calls `tool_package_name()` to resolve the correct package name
+3. Installs using the appropriate package manager (`apt`, `dnf`, `pacman`, etc.)
+
+**Example:**
+
+```bash
+# On Ubuntu, installs 'dnsutils' package
+auto_install_tool dig
+
+# On Fedora, installs 'bind-utils' package
+auto_install_tool dig
+
+# On Arch, installs 'bind' package
+auto_install_tool dig
+```
+
+### Empty Tool Name Protection
+
+Both `check_tool()` and `get_tool_path()` reject empty tool names and return 1, preventing accidental misuse.
 
 ---
 
@@ -122,7 +232,7 @@ NETREAPER/
 | `core.sh` | Logging system, color definitions, directory setup, exit codes, privilege handling, dry-run, `die`/`try`/`require_tool` |
 | `ui.sh` | Banner display, input sanitization, prompts (`confirm`, `confirm_dangerous`, `select_option`), progress indicators |
 | `safety.sh` | IP validation, CIDR matching, protected ranges, `validate_target()`, authorization checks, unsafe mode |
-| `detection.sh` | Distro detection, package manager setup, tool checks, wireless interface detection |
+| `detection.sh` | Distro detection, package manager setup, tool checks with `TOOL_SEARCH_PATHS`, `tool_package_name()` for distro-aware resolution, wireless interface detection |
 | `config.sh` | Persistent configuration: `init_config()`, `config_get/set/show/edit`, atomic file writes |
 | `utils.sh` | Timestamps, file backups, cleanup handlers, safe file operations (`safe_rm`, `safe_copy`, `safe_move`), tool execution wrappers |
 
@@ -478,9 +588,19 @@ NR_NON_INTERACTIVE=1 bats tests/*.bats
 | `tests/cli.bats` | CLI flags, commands, exit codes |
 | `tests/help.bats` | Help output validation |
 | `tests/syntax.bats` | Shell syntax checking |
-| `tests/detection.bats` | System/distro detection |
+| `tests/detection.bats` | System/distro detection, tool search paths, package name mappings (14 tests for empty args, path list, and mappings) |
 | `tests/config.bats` | Configuration persistence, commands, non-interactive behavior |
 | `tests/smoke/*.sh` | Quick smoke tests for CI |
+
+### Verification Command
+
+To verify all tests pass:
+
+```bash
+NR_NON_INTERACTIVE=1 bats tests/*.bats
+```
+
+Expected output: **109 tests, 0 failures**
 
 ---
 

@@ -262,8 +262,157 @@ declare -gA TOOL_CATEGORIES=(
 )
 
 #═══════════════════════════════════════════════════════════════════════════════
+# DISTRO-AWARE PACKAGE NAME MAPPING
+#═══════════════════════════════════════════════════════════════════════════════
+
+# Get the correct package name for the current distro family
+# Args: $1 = tool name (binary name)
+# Returns: package name to install for this distro
+# Uses DISTRO_FAMILY (set by detect_system) to determine correct package
+tool_package_name() {
+    local tool="$1"
+    local family="${DISTRO_FAMILY:-unknown}"
+
+    # Handle empty input
+    [[ -z "$tool" ]] && { echo "$tool"; return 1; }
+
+    # Suite tools - all distros map to parent package
+    case "$tool" in
+        airodump-ng|aireplay-ng|airmon-ng|airbase-ng|airdecap-ng|airdecloak-ng|airserv-ng|airtun-ng|besside-ng|easside-ng|packetforge-ng|tkiptun-ng|wesside-ng)
+            echo "aircrack-ng"
+            return 0
+            ;;
+    esac
+
+    # Distro-family specific mappings
+    case "$tool" in
+        # DNS utilities
+        dig|nslookup|host)
+            case "$family" in
+                debian)  echo "dnsutils" ;;
+                redhat)  echo "bind-utils" ;;
+                arch)    echo "bind" ;;
+                suse)    echo "bind-utils" ;;
+                alpine)  echo "bind-tools" ;;
+                *)       echo "dnsutils" ;;
+            esac
+            return 0
+            ;;
+
+        # Wireshark/tshark
+        tshark)
+            case "$family" in
+                debian)  echo "tshark" ;;
+                redhat)  echo "wireshark-cli" ;;
+                arch)    echo "wireshark-cli" ;;
+                suse)    echo "wireshark" ;;
+                alpine)  echo "tshark" ;;
+                *)       echo "tshark" ;;
+            esac
+            return 0
+            ;;
+
+        wireshark)
+            case "$family" in
+                arch)    echo "wireshark-qt" ;;
+                *)       echo "wireshark" ;;
+            esac
+            return 0
+            ;;
+
+        # Netcat variants
+        netcat|nc)
+            case "$family" in
+                debian)  echo "netcat-openbsd" ;;
+                redhat)  echo "nmap-ncat" ;;
+                arch)    echo "openbsd-netcat" ;;
+                suse)    echo "netcat-openbsd" ;;
+                alpine)  echo "netcat-openbsd" ;;
+                *)       echo "netcat" ;;
+            esac
+            return 0
+            ;;
+
+        # Python pip
+        pip3|pip)
+            case "$family" in
+                debian)  echo "python3-pip" ;;
+                redhat)  echo "python3-pip" ;;
+                arch)    echo "python-pip" ;;
+                suse)    echo "python3-pip" ;;
+                alpine)  echo "py3-pip" ;;
+                *)       echo "python3-pip" ;;
+            esac
+            return 0
+            ;;
+
+        # Wireless tools
+        iwconfig|iwlist)
+            echo "wireless-tools"
+            return 0
+            ;;
+
+        # John the Ripper
+        john)
+            case "$family" in
+                debian)  echo "john" ;;
+                redhat)  echo "john" ;;
+                arch)    echo "john" ;;
+                *)       echo "john" ;;
+            esac
+            return 0
+            ;;
+
+        # Whois
+        whois)
+            case "$family" in
+                alpine)  echo "whois" ;;
+                *)       echo "whois" ;;
+            esac
+            return 0
+            ;;
+
+        # Traceroute
+        traceroute)
+            case "$family" in
+                debian)  echo "traceroute" ;;
+                redhat)  echo "traceroute" ;;
+                arch)    echo "traceroute" ;;
+                alpine)  echo "busybox-extras" ;;
+                *)       echo "traceroute" ;;
+            esac
+            return 0
+            ;;
+    esac
+
+    # Check if tool is in TOOL_PACKAGES registry
+    if [[ -n "${TOOL_PACKAGES[$tool]:-}" ]]; then
+        echo "${TOOL_PACKAGES[$tool]}"
+        return 0
+    fi
+
+    # Default: package name same as tool name
+    echo "$tool"
+    return 0
+}
+
+#═══════════════════════════════════════════════════════════════════════════════
 # TOOL DETECTION
 #═══════════════════════════════════════════════════════════════════════════════
+
+# Comprehensive list of binary directories to search
+# Includes all common locations where tools might be installed
+readonly TOOL_SEARCH_PATHS=(
+    "/usr/bin"
+    "/usr/local/bin"
+    "/usr/sbin"
+    "/usr/local/sbin"
+    "/sbin"
+    "/bin"
+    "/opt/bin"
+    "$HOME/.local/bin"
+    "$HOME/go/bin"
+)
 
 # Check if a tool/command is installed
 # Args: $1 = tool name, $2 = silent flag (1 = no log output)
@@ -274,6 +423,7 @@ check_tool() {
     local silent="${2:-0}"
     local tool_path=""
 
+    # Reject empty tool name
     [[ -z "$tool" ]] && return 1
 
     # First try command -v (checks PATH)
@@ -282,9 +432,8 @@ check_tool() {
         return 0
     fi
 
-    # Fallback: check common binary directories
-    local search_paths=("/usr/bin" "/usr/local/bin" "/usr/sbin" "/sbin" "/opt/bin")
-    for dir in "${search_paths[@]}"; do
+    # Fallback: check comprehensive list of binary directories
+    for dir in "${TOOL_SEARCH_PATHS[@]}"; do
         if [[ -x "${dir}/${tool}" ]]; then
             tool_path="${dir}/${tool}"
             [[ "$silent" != "1" ]] && log_success "$tool: $tool_path"
@@ -308,10 +457,13 @@ check_tool_installed() {
 
 # Get path to a tool
 # Args: $1 = tool name
-# Returns: path to tool or empty string
+# Returns: path to tool or empty string, exit code 0 if found, 1 if not
 get_tool_path() {
     local tool="$1"
     local tool_path=""
+
+    # Reject empty tool name
+    [[ -z "$tool" ]] && { echo ""; return 1; }
 
     # Try command -v first
     if tool_path=$(command -v "$tool" 2>/dev/null); then
@@ -319,9 +471,8 @@ get_tool_path() {
         return 0
     fi
 
-    # Fallback to common directories
-    local search_paths=("/usr/bin" "/usr/local/bin" "/usr/sbin" "/sbin" "/opt/bin")
-    for dir in "${search_paths[@]}"; do
+    # Fallback to comprehensive list of directories
+    for dir in "${TOOL_SEARCH_PATHS[@]}"; do
         if [[ -x "${dir}/${tool}" ]]; then
             echo "${dir}/${tool}"
             return 0
@@ -382,8 +533,8 @@ auto_install_tool() {
         return 0
     fi
 
-    # Resolve package name from registry, fallback to tool name
-    pkg="${TOOL_PACKAGES[$tool]:-$tool}"
+    # Resolve package name using distro-aware mapping
+    pkg=$(tool_package_name "$tool")
 
     log_warning "$tool is not installed"
 
@@ -750,6 +901,9 @@ export -f detect_package_manager setup_package_manager
 
 # Tool detection
 export -f check_tool check_tool_installed get_tool_path check_tool_version
+
+# Package name mapping (distro-aware)
+export -f tool_package_name
 
 # Tool installation
 export -f auto_install_tool require_tools

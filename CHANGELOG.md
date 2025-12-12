@@ -2,6 +2,32 @@
 
 All notable changes to NETREAPER.
 
+## [6.3.3] - 2025-12-12
+
+### Added
+- **install.sh – Callable Command Guarantee**
+  - `_dir_in_path()` helper to check if a directory is in PATH
+  - `_select_install_dir()` choosing best install directory (`/usr/local/bin` → `/usr/bin` → fallback with PATH fix)
+  - `_create_path_dropin()` to create `/etc/profile.d/netreaper.sh` if needed for PATH augmentation
+  - Installer creates wrapper scripts in install directory pointing to `bin/netreaper` and `bin/netreaper-install`
+  - Post-install verification **hard-fails** if `command -v netreaper` fails
+  - `bin/netreaper-install` only runs if arguments are provided (prevents accidental execution)
+
+- **lib/detection.sh – Tool Detection Fixes**
+  - New `TOOL_SEARCH_PATHS` constant covering comprehensive search locations:
+    `/usr/bin /usr/local/bin /usr/sbin /usr/local/sbin /sbin /bin /opt/bin ~/.local/bin ~/go/bin`
+  - `check_tool()` and `get_tool_path()` now search all directories in `TOOL_SEARCH_PATHS`
+  - Empty tool names are rejected (return 1)
+  - New `tool_package_name()` function with distro-family mappings:
+    - Aircrack suite tools (`aircrack-ng`, `airodump-ng`, `aireplay-ng`, etc.) → `aircrack-ng` package
+    - `dig`: debian → `dnsutils`, redhat → `bind-utils`, arch → `bind`
+    - `tshark`: debian → `tshark`, redhat/arch → `wireshark-cli`
+    - `netcat`: debian → `netcat-openbsd`, redhat → `nmap-ncat`, arch → `openbsd-netcat`
+  - `auto_install_tool()` now uses `tool_package_name()` for correct per-distro resolution
+
+- **tests/detection.bats**
+  - 14 new tests covering empty args, path list validation, and package name mappings
+
 ## [6.3.2] - 2025-12-12
 
 ### Fixed
@@ -210,6 +236,7 @@ modules/osint.sh       - OSINT gathering
 
 ---
 
+[6.3.3]: https://github.com/Nerds489/NETREAPER/compare/v6.3.2...v6.3.3
 [6.3.2]: https://github.com/Nerds489/NETREAPER/compare/v6.3.1...v6.3.2
 [6.3.1]: https://github.com/Nerds489/NETREAPER/compare/v6.2.4...v6.3.1
 [6.2.4]: https://github.com/Nerds489/NETREAPER/compare/v6.2.3...v6.2.4
