@@ -2,11 +2,25 @@
 
 All notable changes to NETREAPER.
 
-## [6.3.1] - 2025-12-12
+## [6.3.2] - 2025-12-12
 
 ### Fixed
-- Config command output for CI correctness (`config get` outputs raw values only)
-- All logging now goes to stderr, preserving stdout for data
+- **CI correctness**: All log output now goes to stderr, preserving stdout for data
+- **`config get` output**: Now returns raw values only (no colors, headers, or logging)
+- Installer hard-fails if legacy v5.x binaries cannot be removed (prevents broken hybrid state)
+- Post-install verification ensures only the modular wrapper is installed
+
+### Changed
+- `reinstall-netreaper.sh` rewritten with strict CI safety:
+  - Requires explicit confirmation in interactive mode
+  - Non-interactive mode requires `NR_NON_INTERACTIVE=1` AND `NR_FORCE_REINSTALL=1`
+  - Uses `umask 077` and bash strict mode
+  - Verifies `netreaper --version` matches VERSION file after install
+
+### Added
+- Environment variables for CI/automation: `NR_FORCE_REINSTALL`, `NR_KEEP_CONFIG`, `NR_REMOVE_CONFIG`
+
+## [6.3.1] - 2025-12-12
 
 ### Added
 - Protection against legacy v5.x monolithic installs (auto-removed during install)
@@ -196,6 +210,7 @@ modules/osint.sh       - OSINT gathering
 
 ---
 
+[6.3.2]: https://github.com/Nerds489/NETREAPER/compare/v6.3.1...v6.3.2
 [6.3.1]: https://github.com/Nerds489/NETREAPER/compare/v6.2.4...v6.3.1
 [6.2.4]: https://github.com/Nerds489/NETREAPER/compare/v6.2.3...v6.2.4
 [6.2.2]: https://github.com/Nerds489/NETREAPER/compare/v6.2.1...v6.2.2

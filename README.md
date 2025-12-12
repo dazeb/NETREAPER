@@ -13,10 +13,10 @@
 
 <h1 align="center">NETREAPER</h1>
 <p align="center"><strong>Offensive Security Framework</strong></p>
-<p align="center">v6.3.1 — Phase 3: Core Infrastructure</p>
+<p align="center">v6.3.2 — Phase 3: Core Infrastructure</p>
 
 <p align="center">
-  <img src="https://img.shields.io/badge/version-6.3.1-red?style=flat-square" alt="Version">
+  <img src="https://img.shields.io/badge/version-6.3.2-red?style=flat-square" alt="Version">
   <img src="https://img.shields.io/badge/license-Apache%202.0-blue?style=flat-square" alt="License">
   <img src="https://img.shields.io/badge/platform-Linux-lightgrey?style=flat-square" alt="Platform">
   <img src="https://img.shields.io/badge/shell-Bash%205.0+-green?style=flat-square" alt="Shell">
@@ -44,7 +44,20 @@ sudo ./install.sh
 The `install.sh` wrapper delegates to `bin/netreaper-install`, which handles tool installation, system-wide symlinks, and dependency management.
 
 > **⚠️ NETREAPER v5.x monolithic installs are obsolete and unsupported.**
-> The installer removes them automatically. If you have `/usr/local/bin/netreaper` from v5.x, it will be deleted during installation.
+> The installer **hard-removes** legacy binaries and will **fail** if removal is not possible.
+> If you have `/usr/local/bin/netreaper` from v5.x, it will be deleted during installation.
+
+**Clean reinstall (removes all artifacts first):**
+
+```bash
+sudo ./reinstall-netreaper.sh
+```
+
+For CI/automation (non-interactive):
+
+```bash
+sudo NR_NON_INTERACTIVE=1 NR_FORCE_REINSTALL=1 ./reinstall-netreaper.sh
+```
 
 **Running locally (without install):**
 

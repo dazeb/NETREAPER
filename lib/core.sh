@@ -295,12 +295,8 @@ _log() {
         # Still log to file, just don't print to console
         :
     else
-        # Console output
-        if [[ $level_num -ge $LOG_LEVEL_ERROR ]]; then
-            echo -e "    ${color}[${symbol}]${C_RESET} $message" >&2
-        else
-            echo -e "    ${color}[${symbol}]${C_RESET} $message"
-        fi
+        # Console output - ALL log messages go to stderr to preserve stdout for data
+        echo -e "    ${color}[${symbol}]${C_RESET} $message" >&2
     fi
 
     # File logging
