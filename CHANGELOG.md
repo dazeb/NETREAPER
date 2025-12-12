@@ -2,6 +2,17 @@
 
 All notable changes to NETREAPER.
 
+## [6.3.4] - 2025-12-13
+
+### Fixed
+- **install.sh – Sourcery review fixes**
+  - `_verify_installation`: Guard `--version` execution when `wrapper_path` is empty/invalid
+  - `_cleanup_legacy`: Relax failure for `--user` installs when system legacy binaries exist but can't be removed (warn-only for non-root)
+  - `_do_uninstall`: Proper success/failure tracking with distinct `uninstall_removed_any` and `uninstall_failed_any` flags; exits non-zero on partial failure
+
+### Changed
+- Version consistency enforcement across all files (6.3.4 is now the single source of truth)
+
 ## [6.3.3] - 2025-12-12
 
 ### Added
@@ -236,6 +247,7 @@ modules/osint.sh       - OSINT gathering
 
 ---
 
+[6.3.4]: https://github.com/Nerds489/NETREAPER/compare/v6.3.3...v6.3.4
 [6.3.3]: https://github.com/Nerds489/NETREAPER/compare/v6.3.2...v6.3.3
 [6.3.2]: https://github.com/Nerds489/NETREAPER/compare/v6.3.1...v6.3.2
 [6.3.1]: https://github.com/Nerds489/NETREAPER/compare/v6.2.4...v6.3.1
