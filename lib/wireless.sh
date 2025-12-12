@@ -15,35 +15,24 @@ readonly _NETREAPER_WIRELESS_LOADED=1
 # Source core library for logging, colors, and sudo helpers
 source "${BASH_SOURCE%/*}/core.sh"
 
+#
+# NOTE:
+# - is_wireless_interface() lives in lib/detection.sh as the single source of truth.
+# - This file intentionally does NOT duplicate that function.
+#
+
+# Safety: if someone sources lib/wireless.sh directly without detection.sh
+if ! declare -F is_wireless_interface >/dev/null 2>&1; then
+    # shellcheck disable=SC1091
+    source "${NETREAPER_ROOT:-$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")/.." && pwd)}/lib/detection.sh" 2>/dev/null || true
+fi
+
 #═══════════════════════════════════════════════════════════════════════════════
 # WIRELESS INTERFACE DETECTION
 #═══════════════════════════════════════════════════════════════════════════════
 
-# Check if interface is wireless (supports monitor mode)
-# Args: $1 = interface name
-# Returns: 0 if wireless, 1 if not
-# Uses multiple detection methods for maximum compatibility
-is_wireless_interface() {
-    local iface="$1"
-    [[ -z "$iface" ]] && return 1
-
-    # Method 1: Check for wireless directory in sysfs (most reliable)
-    if [[ -d "/sys/class/net/$iface/wireless" ]]; then
-        return 0
-    fi
-
-    # Method 2: Try iw command (modern wireless stack)
-    if command -v iw &>/dev/null; then
-        iw dev "$iface" info &>/dev/null 2>&1 && return 0
-    fi
-
-    # Method 3: Check /proc/net/wireless (legacy but reliable)
-    if grep -q "^[[:space:]]*${iface}:" /proc/net/wireless 2>/dev/null; then
-        return 0
-    fi
-
-    return 1
-}
+# is_wireless_interface() is defined in lib/detection.sh (single source of truth)
+# The safety source above ensures it's available.
 
 # List all wireless interfaces
 # Returns: one interface per line
